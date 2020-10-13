@@ -5,7 +5,7 @@ describe('Test Schema Mapper', () => {
     describe('Schema Mapper Core Functionality', () => {
         it('add null keys to schema', async () => {
             const data = {test_id: 1};
-            const results = await schemaMapper.mapToSchema(data, 'v1-test-request');
+            const results = await schemaMapper.mapToSchema(data, 'v1-test-request', 'test/openapi.yml');
             assert.deepEqual(results, {test_id: 1});
         });
         it('remove keys from data', async () => {
@@ -22,7 +22,7 @@ describe('Test Schema Mapper', () => {
                 ],
                 removed_key: true
             };
-            const results = await schemaMapper.mapToSchema(data, 'v1-test-request');
+            const results = await schemaMapper.mapToSchema(data, 'v1-test-request', 'test/openapi.yml');
             assert.deepEqual(results, {
                 test_id: 1,
                 object_key: {string_key: 'string'},

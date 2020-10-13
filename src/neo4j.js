@@ -7,6 +7,7 @@ class Neo4JAdapter {
         this._bolt = params.bolt;
         this._node = params.node;
         this._schemaKey = params.schemaKey;
+        this._schemaPath = params.schemaPath;
         this._modelVersionKey = params.modelVersionKey;
         this._modelIdentifier = params.modelIdentifier;
         this._autoConnect = params.autoConnect !== false ? true : params.autoConnect;
@@ -20,19 +21,9 @@ class Neo4JAdapter {
         if (status) {
             return;
         }
-        for (const config of ['_modelSchema', '_modelVersionKey', '_modelIdentifier', '_node']) {
+        for (const config of ['_schemaKey', '_schemaPath', '_modelVersionKey', '_modelIdentifier', '_node']) {
             if (this[config] === null || this[config] === undefined) {
                 throw `${config} is a required property in config params`.replace('_', '');
-            }
-        }
-        if (Object.keys(this._customAttributes).length > 4) {
-            throw `customAttributes should not be greater than 4 keys`;
-        }
-        if (this._customAttributes) {
-            for (const attribute in this._customAttributes) {
-                if (typeof attribute !== 'string') {
-                    throw `customAttributes should only be strings`;
-                }
             }
         }
     }

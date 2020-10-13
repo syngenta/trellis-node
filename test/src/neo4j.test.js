@@ -23,7 +23,7 @@ describe('Test Neo4j Adapter', () => {
                 },
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
-                schemaKey: 'test-dynamo-model',
+                schemaKey: 'test-neo4j-model',
                 schemaPath: 'test/openapi.yml'
             });
             await adapter._session.run(`MATCH (n) DETACH DELETE n`);
@@ -42,7 +42,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             const results = await adapter.check();
             assert.equal(results, true);
@@ -57,7 +59,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             const results = await adapter.create({
                 data: baseData
@@ -74,7 +78,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             baseData.test_id = 'abc123-1';
             await adapter.create({
@@ -111,7 +117,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             baseData.test_id = 'abc123-3';
             await adapter.create({
@@ -144,7 +152,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             baseData.test_id = 'abc123-4';
             await adapter.create({
@@ -168,7 +178,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             baseData.test_id = 'abc123-5';
             await adapter.create({
@@ -201,7 +213,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             baseData.test_id = 'abc123-6';
             await adapter.create({
@@ -233,7 +247,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             baseData.test_id = 'abc123-7';
             await adapter.create({
@@ -257,7 +273,9 @@ describe('Test Neo4j Adapter', () => {
                     password: 'password'
                 },
                 modelIdentifier: 'test_id',
-                modelVersionKey: 'modified'
+                modelVersionKey: 'modified',
+                schemaKey: 'test-neo4j-model',
+                schemaPath: 'test/openapi.yml'
             });
             assert.equal(adapter._session._open, true);
             await adapter.close();
@@ -275,7 +293,7 @@ describe('Test Neo4j Adapter', () => {
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
-                schemaKey: 'test-dynamo-model',
+                schemaKey: 'test-neo4j-model',
                 schemaPath: 'test/openapi.yml'
             });
             assert.equal(adapter._session, null);
@@ -296,7 +314,7 @@ describe('Test Neo4j Adapter', () => {
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
-                schemaKey: 'test-dynamo-model',
+                schemaKey: 'test-neo4j-model',
                 schemaPath: 'test/openapi.yml'
             });
             await adapter.open();
@@ -369,7 +387,7 @@ describe('Test Neo4j Adapter', () => {
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
-                schemaKey: 'test-dynamo-model',
+                schemaKey: 'test-neo4j-model',
                 schemaPath: 'test/openapi.yml'
             });
             await u2Adapter.open();
@@ -389,7 +407,7 @@ describe('Test Neo4j Adapter', () => {
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
-                schemaKey: 'test-dynamo-model',
+                schemaKey: 'test-neo4j-model',
                 schemaPath: 'test/openapi.yml'
             });
             await u1Adapter.open();

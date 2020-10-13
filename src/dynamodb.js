@@ -22,19 +22,9 @@ class DynamodbAdapter {
         if (status) {
             return;
         }
-        for (const config of ['_table', '_schemaKey, this._schemaPath', '_modelVersionKey', '_modelIdentifier']) {
+        for (const config of ['_table', '_schemaKey', '_schemaPath', '_modelVersionKey', '_modelIdentifier']) {
             if (this[config] === null || this[config] === undefined) {
                 throw `${config} is a required property in config params`.replace('_', '');
-            }
-        }
-        if (Object.keys(this._customAttributes).length > 4) {
-            throw `customAttributes should not be greater than 4 keys`;
-        }
-        if (this._customAttributes) {
-            for (const attribute in this._customAttributes) {
-                if (typeof attribute !== 'string') {
-                    throw `customAttributes should only be strings`;
-                }
             }
         }
     }

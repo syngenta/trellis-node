@@ -3,13 +3,7 @@ const yaml = require('js-yaml');
 const RefParser = require('json-schema-ref-parser');
 
 const _checkData = (data, propertyKey) => {
-    if (
-        data &&
-        propertyKey in data &&
-        data[propertyKey] !== undefined &&
-        data[propertyKey] !== null &&
-        data[propertyKey] !== 'null'
-    ) {
+    if (data && propertyKey in data && data[propertyKey] !== undefined && data[propertyKey] !== null) {
         return true;
     }
     return false;
@@ -61,7 +55,8 @@ const _populateSchemasWithData = (modelSchema, data) => {
 };
 
 const _getSchema = async (schemaKey, schemaPath) => {
-    const openapi = await yaml.safeLoad(fs.readFileSync(schemaPath, 'utf8'));
+    const file = await fs.readFileSync(schemaPath, 'utf8');
+    const openapi = await yaml.safeLoad(file);
     const refapi = await RefParser.dereference(openapi);
     return refapi.components.schemas[schemaKey];
 };
