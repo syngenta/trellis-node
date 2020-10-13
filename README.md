@@ -35,6 +35,16 @@ const adapter = dataAdapter.getAdapter({
 });
 ```
 
+**Initialize Options**
+
+Option Name       | Required | Type   | Description
+:-----------      | :------- | :----- | :----------
+`engine`          | true     | string | name of supported db engine (dynamodb, neo4j)
+`table`           | true     | string | name of dynamodb table
+`schemaKey`       | true     | string | key of openapi schema this is being set against
+`schemaPath`      | true     | string | path where your schema file can found (accepts JSON as well)
+`modelIdentifier` | true     | string | unique identifier key on the model
+`modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
 
 
 ```javascript
@@ -147,7 +157,22 @@ const adapter = await dataAdapter.getAdapter({
     modelIdentifier: 'grower_id',
     modelVersionKey: 'modified'
 });
+```
 
+**Initialize Options**
+
+Option Name       | Required | Type   | Description
+:-----------      | :------- | :----- | :----------
+`engine`          | true     | string | name of supported db engine (dynamodb, neo4j)
+`bolt.url`        | true     | string | bolt url (include protocal; neo4j// or bolt//)
+`bolt.user`       | true     | string | bolt user of the db
+`bolt.password`   | true     | string | bolt password of the db
+`schemaPath`      | true     | string | path where your schema file can found (accepts JSON as well)
+`modelIdentifier` | true     | string | unique identifier key on the model
+`modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
+
+
+```javascript
 // read or match
 const results = await adapter.read({
     query: 'MATCH (n) RETURN (n) LIMIT $limit',
