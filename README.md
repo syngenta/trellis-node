@@ -28,8 +28,8 @@ const dataAdapter = require('@syngenta-digita/dta');
 const adapter = dataAdapter.getAdapter({
     engine: 'dynamodb',
     table: 'some-table-name',
-    schemaKey: 'v1-grower-model',
-    schemaPath: 'application/openapi.yml',
+    modelSchema: 'v1-grower-model',
+    modelSchemaFile: 'application/openapi.yml',
     modelIdentifier: 'grower_id',
     modelVersionKey: 'modified'
 });
@@ -41,8 +41,8 @@ Option Name       | Required | Type   | Description
 :-----------      | :------- | :----- | :----------
 `engine`          | true     | string | name of supported db engine (dynamodb, neo4j)
 `table`           | true     | string | name of dynamodb table
-`schemaKey`       | true     | string | key of openapi schema this is being set against
-`schemaPath`      | true     | string | path where your schema file can found (accepts JSON as well)
+`modelSchema`       | true     | string | key of openapi schema this is being set against
+`modelSchemaFile`      | true     | string | path where your schema file can found (accepts JSON as well)
 `modelIdentifier` | true     | string | unique identifier key on the model
 `modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
 
@@ -152,8 +152,8 @@ const adapter = await dataAdapter.getAdapter({
         user: process.env.BOLT_USER,
         password: process.env.BOLT_PASSWORD
     },
-    schemaKey: 'v1-grower-model',
-    schemaPath: 'application/openapi.yml',
+    modelSchema: 'v1-grower-model',
+    modelSchemaFile: 'application/openapi.yml',
     modelIdentifier: 'grower_id',
     modelVersionKey: 'modified'
 });
@@ -167,7 +167,7 @@ Option Name       | Required | Type   | Description
 `bolt.url`        | true     | string | bolt url (include protocal; neo4j// or bolt//)
 `bolt.user`       | true     | string | bolt user of the db
 `bolt.password`   | true     | string | bolt password of the db
-`schemaPath`      | true     | string | path where your schema file can found (accepts JSON as well)
+`modelSchemaFile`      | true     | string | path where your schema file can found (accepts JSON as well)
 `modelIdentifier` | true     | string | unique identifier key on the model
 `modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
 
@@ -222,6 +222,6 @@ To run unit tests, please do the following:
 
 0. Have Docker Installed
 1. run `npm install`
-2. run `npm run test-dbs` in a separate session window
+2. run `npm run test-dbs` in a separate session window (must have docker installed)
 3. run `npm test` in another session
 4. Happy Coding :)
