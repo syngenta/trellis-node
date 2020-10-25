@@ -54,17 +54,15 @@ const _populateSchemasWithData = (modelSchema, data) => {
     return schemaData;
 };
 
-const _getSchema = async (schemaKey, schemaPath) => {
-    const file = await fs.readFileSync(schemaPath, 'utf8');
+const _getSchema = async (schemaKey, modelSchemaFile) => {
+    const file = await fs.readFileSync(modelSchemaFile, 'utf8');
     const openapi = await yaml.safeLoad(file);
     const refapi = await RefParser.dereference(openapi);
     return refapi.components.schemas[schemaKey];
 };
 
-const mapToSchema = async (data, schemaKey, schemaPath) => {
-    const modelSchema = await _getSchema(schemaKey, schemaPath);
-    const schemaData = _populateSchemasWithData(modelSchema, data);
+exports.mapToSchema = async (data, modelSchema, modelSchemaFile) => {
+    const schema = await _getSchema(modelSchema, modelSchemaFile);
+    const schemaData = _populateSchemasWithData(schema, data);
     return schemaData;
 };
-
-module.exports = {mapToSchema};

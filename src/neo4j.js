@@ -1,31 +1,21 @@
 const neo4j = require('neo4j-driver');
 const schemaMapper = require('./common/schemaMapper');
 const merger = require('./common/merger');
+const publisher = require('./common/publisher');
 
 class Neo4JAdapter {
     constructor(params) {
         this._bolt = params.bolt;
         this._node = params.node;
-        this._schemaKey = params.schemaKey;
-        this._schemaPath = params.schemaPath;
+        this._modelSchema = params.modelSchema;
+        this._modelSchemaFile = params.modelSchemaFile;
         this._modelVersionKey = params.modelVersionKey;
         this._modelIdentifier = params.modelIdentifier;
+        this._snsAttributes = params.snsAttributes;
         this._autoConnect = params.autoConnect !== false ? true : params.autoConnect;
         this._driver = null;
         this._session = null;
-        this._checkConfigs(params.status);
         this._autoOpen();
-    }
-
-    _checkConfigs(status) {
-        if (status) {
-            return;
-        }
-        for (const config of ['_schemaKey', '_schemaPath', '_modelVersionKey', '_modelIdentifier', '_node']) {
-            if (this[config] === null || this[config] === undefined) {
-                throw `${config} is a required property in config params`.replace('_', '');
-            }
-        }
     }
 
     async check() {
@@ -41,13 +31,14 @@ class Neo4JAdapter {
 
     async create(params) {
         params.query = `CREATE(:${this._node} $placeholder)`;
-        const data = await schemaMapper.mapToSchema(params.data, this._schemaKey, this._schemaPath);
+        const data = await schemaMapper.mapToSchema(params.data, this._modelSchema, this._modelSchemaFile);
         const result = await this._session.writeTransaction(async (txc) => {
             const records = await txc.run(params.query, {placeholder: data});
             return records;
         });
         this._checkDebug(params, result);
         this._autoClose();
+        await this._publish('create', data);
         return data;
     }
 
@@ -56,6 +47,7 @@ class Neo4JAdapter {
             throw 'INTEGRITY ERROR: Please only use this function to create relationships;';
         }
         const result = await this._session.run(params.query, params.placeholder);
+        await this._publish('create', result);
         this._checkDebug(params, result);
         this._autoClose();
         return result;
@@ -88,7 +80,7 @@ class Neo4JAdapter {
             throw 'ATOMIC ERROR: No records found; record must have been deleted';
         }
         const mergedData = await merger.merge(params, originalData[0]._fields[0].properties);
-        const updatedData = await schemaMapper.mapToSchema(mergedData, this._schemaKey, this._schemaPath);
+        const updatedData = await schemaMapper.mapToSchema(mergedData, this._modelSchema, this._modelSchemaFile);
         params.updateQuery = `MATCH (n:${this._node}) WHERE n.${this._modelIdentifier} = $id AND n.${this._modelVersionKey} = $version SET n = $placeholder RETURN n`;
         this._autoOpen();
         const result = await this._session.writeTransaction(async (txc) => {
@@ -104,6 +96,7 @@ class Neo4JAdapter {
         }
         this._checkDebug(params, result);
         this._autoClose();
+        await this._publish('update', updatedData);
         return updatedData;
     }
 
@@ -116,6 +109,7 @@ class Neo4JAdapter {
         const readResult = await this._getBeforeDelete(params);
         const delResult = await this._performDelete(params);
         this._checkDebug(params, delResult);
+        await this._publish('delete', readResult);
         return readResult;
     }
 
@@ -319,6 +313,18 @@ class Neo4JAdapter {
             console.log('params:', JSON.stringify(params));
             console.log('results:', JSON.stringify(result));
         }
+    }
+
+    async _publish(operation, data) {
+        await publisher.publish({
+            snsTopicArn: this._snsTopicArn,
+            authorIdentifier: this._authorIdentifier,
+            modelIdentifier: this._modelIdentifier,
+            modelSchema: this._modelSchema,
+            operation,
+            data,
+            snsAttributes: this._snsAttributes
+        });
     }
 }
 

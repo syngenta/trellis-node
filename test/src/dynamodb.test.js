@@ -105,8 +105,8 @@ const create_table_with_hash_and_sort = async (dynamodb, seeder) => {
         endpoint: 'http://localhost:4000',
         region: 'us-east-2',
         table: 'unittestsort',
-        schemaKey: 'test-dynamo-model',
-        schemaPath: 'test/openapi.yml',
+        modelSchema: 'test-dynamo-model',
+        modelSchemaFile: 'test/openapi.yml',
         modelIdentifier: 'test_id',
         modelVersionKey: 'modified'
     });
@@ -201,8 +201,8 @@ describe('Test Dynamo Adapter', () => {
                 endpoint: 'http://localhost:4000',
                 region: 'us-east-2',
                 table: 'unittest',
-                schemaKey: 'test-dynamo-model',
-                schemaPath: 'test/openapi.yml',
+                modelSchema: 'test-dynamo-model',
+                modelSchemaFile: 'test/openapi.yml',
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified'
             });

@@ -1,32 +1,23 @@
 const AWS = require('aws-sdk');
 const schemaMapper = require('./common/schemaMapper');
 const merger = require('./common/merger');
+const publisher = require('./common/publisher');
 
 class DynamodbAdapter {
     constructor(params) {
         this._table = params.table;
-        this._schemaKey = params.schemaKey;
-        this._schemaPath = params.schemaPath;
+        this._modelSchema = params.modelSchema;
+        this._modelSchemaFile = params.modelSchemaFile;
         this._modelVersionKey = params.modelVersionKey;
         this._modelIdentifier = params.modelIdentifier;
+        this._authorIdentifier = params.authorIdentifier;
+        this._snsTopicArn = params.snsTopicArn;
         this._dynamodb = new AWS.DynamoDB.DocumentClient({
             endpoint: params.endpoint,
             region: params.region,
             apiVersion: '2012-08-10',
             convertEmptyValues: true
         });
-        this._checkConfigs(params.status);
-    }
-
-    _checkConfigs(status) {
-        if (status) {
-            return;
-        }
-        for (const config of ['_table', '_schemaKey', '_schemaPath', '_modelVersionKey', '_modelIdentifier']) {
-            if (this[config] === null || this[config] === undefined) {
-                throw `${config} is a required property in config params`.replace('_', '');
-            }
-        }
     }
 
     async check() {
@@ -45,6 +36,7 @@ class DynamodbAdapter {
         for (let i = 0; i < items.length; i += batch) {
             const putRequest = items.slice(i, i + batch);
             await this._dynamodb.batchWrite({RequestItems: {[this._table]: putRequest}}).promise();
+            await this._batchPublish('create', putRequest);
         }
         return items;
     }
@@ -77,6 +69,7 @@ class DynamodbAdapter {
         params.query = await this._prepareInsertQuery(params);
         params.query.ConditionExpression = `attribute_not_exists(${this._modelIdentifier})`;
         await this._dynamodb.put(params.query).promise();
+        await this._publish('create', params.query.Item);
         return params.query.Item;
     }
 
@@ -107,9 +100,10 @@ class DynamodbAdapter {
     async update(params) {
         const originalData = await this._getOriginalData(params);
         const mergedData = await merger.merge(params, originalData);
-        const updatedData = await schemaMapper.mapToSchema(mergedData, this._schemaKey, this._schemaPath);
+        const updatedData = await schemaMapper.mapToSchema(mergedData, this._modelSchema, this._modelSchemaFile);
         await this._prepareQuery(params, updatedData);
         await this._dynamodb.put(params.query).promise();
+        await this._publish('update', params.query.Item);
         return params.query.Item;
     }
 
@@ -118,12 +112,14 @@ class DynamodbAdapter {
         params.query.TableName = this._table;
         params.query.ReturnValues = 'ALL_OLD';
         const data = await this._dynamodb.delete(params.query).promise();
+        await this._publish('delete', data.Attributes);
         return data.Attributes;
     }
 
     async overwrite(params) {
         params.query = await this._prepareInsertQuery(params);
         await this._dynamodb.put(params.query).promise();
+        await this._publish('create', params.query.Item);
         return params.query.Item;
     }
 
@@ -185,7 +181,7 @@ class DynamodbAdapter {
     async _prepareBatchOverwriteQuery(params) {
         const items = [];
         for (const data of params.data) {
-            const Item = await schemaMapper.mapToSchema(data, this._schemaKey, this._schemaPath);
+            const Item = await schemaMapper.mapToSchema(data, this._modelSchema, this._modelSchemaFile);
             items.push({PutRequest: {Item}});
         }
         return items;
@@ -199,16 +195,14 @@ class DynamodbAdapter {
             for (const [key, value] of Object.entries(_key)) {
                 new_item[key] = value;
             }
-
             new_key.Keys.push(new_item);
-
             items[this._table] = new_key;
         }
         return items;
     }
 
     async _prepareInsertQuery(params) {
-        const data = await schemaMapper.mapToSchema(params.data, this._schemaKey, this._schemaPath);
+        const data = await schemaMapper.mapToSchema(params.data, this._modelSchema, this._modelSchemaFile);
         params.query = params.query ? params.query : {};
         params.query.Item = data;
         params.query.TableName = this._table;
@@ -226,6 +220,24 @@ class DynamodbAdapter {
             throw 'update: no data found to update';
         }
         return originalData;
+    }
+
+    async _batchPublish(operation, items) {
+        for (const item of items) {
+            await this._publish(operation, item.PutRequest.Item);
+        }
+    }
+
+    async _publish(operation, data) {
+        await publisher.publish({
+            snsTopicArn: this._snsTopicArn,
+            authorIdentifier: this._authorIdentifier,
+            modelIdentifier: this._modelIdentifier,
+            modelSchema: this._modelSchema,
+            operation,
+            data,
+            snsAttributes: this._snsAttributes
+        });
     }
 }
 

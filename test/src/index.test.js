@@ -19,8 +19,8 @@ describe('Test Data adapter', () => {
                 endpoint: 'http://localhost:4000',
                 region: 'us-east-2',
                 table: 'unittest',
-                schemaKey: 'test-dynamo-model',
-                schemaPath: 'test/openapi.yml',
+                modelSchema: 'test-dynamo-model',
+                modelSchemaFile: 'test/openapi.yml',
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified'
             });
@@ -48,8 +48,8 @@ describe('Test Data adapter', () => {
                 },
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
-                schemaKey: 'test-dynamo-model',
-                schemaPath: 'test/openapi.yml'
+                modelSchema: 'test-dynamo-model',
+                modelSchemaFile: 'test/openapi.yml'
             });
         });
         it('adapter is Neo4JAdapter instance', () => {
@@ -66,11 +66,11 @@ describe('Test Data adapter', () => {
                     engine: 'not-a-db',
                     modelIdentifier: 'test_id',
                     modelVersionKey: 'modified',
-                    schemaKey: 'test-dynamo-model',
-                    schemaPath: 'test/openapi.yml'
+                    modelSchema: 'test-dynamo-model',
+                    modelSchemaFile: 'test/openapi.yml'
                 });
             } catch (error) {
-                assert.equal(error, 'not-a-db is not supported');
+                assert.equal(error.toString(), 'Error: not-a-db is not supported... yet.');
             }
         });
     });
