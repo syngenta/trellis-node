@@ -27,6 +27,7 @@ const dataAdapter = require('@syngenta-digita/dta');
 // initialization
 const adapter = dataAdapter.getAdapter({
     engine: 'dynamodb',
+    endpoint: 'http://localhost:4000', # optional; if using lambda, it will
     table: 'some-table-name',
     modelSchema: 'v1-grower-model',
     modelSchemaFile: 'application/openapi.yml',
@@ -41,10 +42,14 @@ Option Name       | Required | Type   | Description
 :-----------      | :------- | :----- | :----------
 `engine`          | true     | string | name of supported db engine (dynamodb, neo4j)
 `table`           | true     | string | name of dynamodb table
-`modelSchema`       | true     | string | key of openapi schema this is being set against
-`modelSchemaFile`      | true     | string | path where your schema file can found (accepts JSON as well)
+`endpoint`        | false    | string | url of the dynamodb table (useful for local development)
+`modelSchema`     | true     | string | key of openapi schema this is being set against
+`modelSchemaFile` | true     | string | path where your schema file can found (accepts JSON as well)
 `modelIdentifier` | true     | string | unique identifier key on the model
 `modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
+`authorIdentifier`| false    | string | unique identifier of the author who made the change (optional)
+`snsTopicArn`     | false    | string | sns topic arn you want to broadcast the changes to
+`snsAttributes`   | false    | string | sns custom attributues to add to the sns message
 
 
 ```javascript
@@ -164,12 +169,15 @@ const adapter = await dataAdapter.getAdapter({
 Option Name       | Required | Type   | Description
 :-----------      | :------- | :----- | :----------
 `engine`          | true     | string | name of supported db engine (dynamodb, neo4j)
-`bolt.url`        | true     | string | bolt url (include protocal; neo4j// or bolt//)
+`bolt.url`        | true     | string | bolt url (include protocol; neo4j// or bolt//)
 `bolt.user`       | true     | string | bolt user of the db
 `bolt.password`   | true     | string | bolt password of the db
-`modelSchemaFile`      | true     | string | path where your schema file can found (accepts JSON as well)
+`modelSchemaFile` | true     | string | path where your schema file can found (accepts JSON as well)
 `modelIdentifier` | true     | string | unique identifier key on the model
 `modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
+`authorIdentifier`| false    | string | unique identifier of the author who made the change (optional)
+`snsTopicArn`     | false    | string | sns topic arn you want to broadcast the changes to
+`snsAttributes`   | false    | string | sns custom attributues to add to the sns message
 
 
 ```javascript
