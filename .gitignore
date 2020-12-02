@@ -104,3 +104,4 @@ dist
 .tern-port
 .tags
 .neo4j
+.DS_Store
