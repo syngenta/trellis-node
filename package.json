@@ -21,7 +21,7 @@
     "dependencies": {
         "aws-sdk": "^2.777.0",
         "deepmerge": "^4.2.1",
-        "js-yaml": "^3.14.0",
+        "js-yaml": "^3.14.1",
         "json-schema-ref-parser": "^9.0.6",
         "neo4j-driver": "^4.1.2"
     },
