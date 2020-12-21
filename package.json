@@ -19,7 +19,7 @@
         "sct": "sct"
     },
     "dependencies": {
-        "aws-sdk": "^2.777.0",
+        "aws-sdk": "^2.814.0",
         "deepmerge": "^4.2.1",
         "js-yaml": "^3.14.0",
         "json-schema-ref-parser": "^9.0.6",
