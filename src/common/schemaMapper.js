@@ -56,7 +56,7 @@ const _populateSchemasWithData = (modelSchema, data) => {
 
 const _getSchema = async (schemaKey, modelSchemaFile) => {
     const file = await fs.readFileSync(modelSchemaFile, 'utf8');
-    const openapi = await yaml.safeLoad(file);
+    const openapi = await yaml.load(file);
     const refapi = await RefParser.dereference(openapi);
     return refapi.components.schemas[schemaKey];
 };
