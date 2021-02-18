@@ -2,13 +2,16 @@ version: 2
 updates:
     -
         package-ecosystem: "npm"
+        open-pull-requests-limit: 3
         directory: "/"
+        target-branch: "master"
         schedule:
-            interval: "daily"
+            interval: "monthly"
         allow:
             - dependency-type: "production"
-        open-pull-requests-limit: 5
         commit-message:
             prefix: "fix"
             prefix-development: "chore"
             include: "scope"
+        pull-request-branch-name:
+            separator: "-"
