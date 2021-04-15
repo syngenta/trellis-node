@@ -2,11 +2,13 @@ const AWS = require('aws-sdk');
 
 const _formatCustomAttributes = (snsAttributes) => {
     const formatted = {};
-    for (const [key, value] of Object.entries(snsAttributes)) {
-        formatted[key] = {
-            DataType: 'String',
-            StringValue: value
-        };
+    if (snsAttributes) {
+        for (const [key, value] of Object.entries(snsAttributes)) {
+            formatted[key] = {
+                DataType: 'String',
+                StringValue: value
+            };
+        }
     }
     return formatted;
 };

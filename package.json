@@ -2,7 +2,7 @@
     "name": "@syngenta-digital/dta",
     "author": "Paul Cruse, Technical Lead USCO Syngenta",
     "main": "src/index.js",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
@@ -13,7 +13,7 @@
     },
     "scripts": {
         "test": "unittest=true nyc mocha --recursive",
-        "run-dbs": "docker-compose -f test/local/test-dbs.yml up",
+        "local": "docker-compose -f test/local/test-dbs.yml up --remove-orphans",
         "report": "nyc report",
         "lint": "eslint src/**",
         "sct": "sct"
