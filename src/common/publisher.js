@@ -14,7 +14,7 @@ const _formatCustomAttributes = (snsAttributes) => {
 };
 
 const _getDefaultAttributes = (params) => {
-    return {
+    const attributes = {
         model_schema: {
             DataType: 'String',
             StringValue: params.modelSchema
@@ -23,15 +23,18 @@ const _getDefaultAttributes = (params) => {
             DataType: 'String',
             StringValue: params.modelIdentifier
         },
-        author_identifier: {
-            DataType: 'String',
-            StringValue: params.authorIdentifier
-        },
         operation: {
             DataType: 'String',
             StringValue: params.operation
         }
     };
+    if (params.authorIdentifier) {
+        attributes.author_identifier = {
+            DataType: 'String',
+            StringValue: params.authorIdentifier
+        };
+    }
+    return attributes;
 };
 
 exports.publish = async (params) => {
