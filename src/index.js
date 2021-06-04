@@ -27,9 +27,9 @@ const _checkConfigs = (params) => {
     }
 };
 
-exports.getAdapter = async (params) => {
+exports.getAdapter = (params) => {
     _checkConfigs(params);
     const Adapter = _engineMapping[params.engine];
-    const adapter = await new Adapter(params);
+    const adapter = new Adapter(params);
     return adapter;
 };
