@@ -144,6 +144,18 @@ await adapter.batchOverwrite({
         },
     ]
 });
+
+// batch get
+await adapter.batchGet({
+    keys: [ // has to be an array
+        {
+            test_id: 'abc123-2'
+        },
+        {
+            test_id: 'abc123-6'
+        }
+    ]
+});
 ```
 
 ## Common Usage: Neo4j
