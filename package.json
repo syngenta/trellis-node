@@ -15,8 +15,7 @@
         "test": "unittest=true nyc mocha --recursive --timeout 10000",
         "local": "docker-compose -f test/local/test-dbs.yml up --remove-orphans",
         "report": "nyc report",
-        "lint": "eslint src/**",
-        "sct": "sct"
+        "lint": "eslint src/**"
     },
     "dependencies": {
         "aws-sdk": "^2.846.0",
