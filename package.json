@@ -12,7 +12,7 @@
         "url": "https://github.com/syngenta-digital/dta-node/issues"
     },
     "scripts": {
-        "test": "unittest=true nyc mocha --recursive",
+        "test": "unittest=true nyc mocha --recursive --timeout 10000",
         "local": "docker-compose -f test/local/test-dbs.yml up --remove-orphans",
         "report": "nyc report",
         "lint": "eslint src/**",
