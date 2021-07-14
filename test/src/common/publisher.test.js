@@ -3,16 +3,16 @@ const AWS = require('aws-sdk');
 const SNSPublisher = require('../../../src/common/publisher');
 
 describe('Test Publisher', () => {
+    before(async () => {
+        AWS.config.update({region: 'us-east-2'});
+        const sns = new AWS.SNS({apiVersion: '2010-03-31', endpoint: 'http://localhost:4566'});
+        try {
+            await sns.createTopic({Name: 'unit-test-topic'}).promise();
+        } catch (error) {
+            console.error(error);
+        }
+    });
     describe('Publisher Core Functionality', () => {
-        before(async () => {
-            AWS.config.update({region: 'us-east-2'});
-            const sns = new AWS.SNS({apiVersion: '2010-03-31', endpoint: 'http://localhost:4566'});
-            try {
-                await sns.createTopic({Name: 'unit-test-topic'}).promise();
-            } catch (error) {
-                console.error(error);
-            }
-        });
         it('publish', async () => {
             const publisher = new SNSPublisher({
                 topicArn: 'arn:aws:sns:us-east-2:000000000000:unit-test-topic',
