@@ -105,3 +105,4 @@ dist
 .tags
 .neo4j
 .DS_Store
+.localstack

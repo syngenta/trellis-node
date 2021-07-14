@@ -61,6 +61,13 @@ jobs:
                     - NEO4J_dbms_memory_heap_max__size=1G
                     - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
                     - NEO4J_AUTH=neo4j/password
+            -
+                image: localstack/localstack-full:latest
+                environment:
+                    - SERVICES=sns
+                    - DEBUG=1
+                    - DEFAULT_REGION=us-east-2
+                    - DATA_DIR=/tmp/localstack/data
         steps:
             - checkout
             - node-install

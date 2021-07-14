@@ -1,6 +1,20 @@
 version: '3'
 
 services:
+    localstack:
+        image: localstack/localstack-full:latest
+        hostname: localstack
+        container_name: localstack
+        ports:
+            - '4563-4599:4563-4599'
+            - 8080:8080
+        volumes:
+            - ./.localstack/data:/tmp/localstack
+        environment:
+            - SERVICES=sns
+            - DEBUG=1
+            - DEFAULT_REGION=us-east-2
+            - DATA_DIR=/tmp/localstack/data
     neo4j:
         image: neo4j:3.5.3-enterprise
         hostname: neo4j

@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const schemaMapper = require('./common/schemaMapper');
 const merger = require('./common/merger');
-const publisher = require('./common/publisher');
+const SNSPublisher = require('./common/publisher');
 
 class DynamodbAdapter {
     constructor(params) {
@@ -10,8 +10,15 @@ class DynamodbAdapter {
         this._modelSchemaFile = params.modelSchemaFile;
         this._modelVersionKey = params.modelVersionKey;
         this._modelIdentifier = params.modelIdentifier;
-        this._authorIdentifier = params.authorIdentifier;
-        this._snsTopicArn = params.snsTopicArn;
+        this._publisher = new SNSPublisher({
+            topicArn: params.snsTopicArn,
+            authorIdentifier: params.authorIdentifier,
+            modelIdentifier: params.modelIdentifier,
+            modelSchema: params.modelSchema,
+            snsAttributes: params.snsAttributes,
+            snsRegion: params.snsRegion || params.region,
+            snsEndpoint: params.snsEndpoint || params.endpoint
+        });
         this._dynamodb = new AWS.DynamoDB.DocumentClient({
             endpoint: params.endpoint,
             region: params.region,
@@ -229,15 +236,7 @@ class DynamodbAdapter {
     }
 
     async _publish(operation, data) {
-        await publisher.publish({
-            snsTopicArn: this._snsTopicArn,
-            authorIdentifier: this._authorIdentifier,
-            modelIdentifier: this._modelIdentifier,
-            modelSchema: this._modelSchema,
-            operation,
-            data,
-            snsAttributes: this._snsAttributes
-        });
+        await this._publisher.publish({operation, data});
     }
 }
 

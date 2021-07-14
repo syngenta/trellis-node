@@ -1,60 +1,68 @@
 const AWS = require('aws-sdk');
 
-const _formatCustomAttributes = (snsAttributes) => {
-    const formatted = {};
-    if (snsAttributes) {
-        for (const [key, value] of Object.entries(snsAttributes)) {
-            formatted[key] = {
-                DataType: 'String',
-                StringValue: value
-            };
-        }
+class SNSPublisher {
+    constructor(params) {
+        AWS.config.update({region: params.snsRegion});
+        this.sns = new AWS.SNS({apiVersion: '2010-03-31', endpoint: params.snsEndpoint});
+        this.topicArn = params.topicArn;
+        this.authorIdentifier = params.authorIdentifier;
+        this.modelIdentifier = params.modelIdentifier;
+        this.modelSchema = params.modelSchema;
+        this.snsAttributes = params.snsAttributes;
     }
-    return formatted;
-};
-
-const _getDefaultAttributes = (params) => {
-    const attributes = {
-        model_schema: {
-            DataType: 'String',
-            StringValue: params.modelSchema
-        },
-        model_identifier: {
-            DataType: 'String',
-            StringValue: params.modelIdentifier
-        },
-        operation: {
-            DataType: 'String',
-            StringValue: params.operation
-        }
-    };
-    if (params.authorIdentifier) {
-        attributes.author_identifier = {
-            DataType: 'String',
-            StringValue: params.authorIdentifier
-        };
-    }
-    return attributes;
-};
-
-exports.publish = async (params) => {
-    if (params.snsTopicArn && params.data) {
-        const sns = new AWS.SNS({apiVersion: '2010-03-31'});
-        try {
-            const attributes = _getDefaultAttributes(params);
-            const formatted = _formatCustomAttributes(params.snsAttributes);
-            const MessageAttributes = {...attributes, ...formatted};
-            await sns
-                .publish({
-                    TopicArn: params.snsTopicArn,
+    async publish(params) {
+        if (params.data) {
+            try {
+                const default_attributes = this._getDefaultAttributes(params.operation);
+                const custom_attributes = this._formatCustomAttributes();
+                const publish = {
+                    TopicArn: this.topicArn,
                     Message: JSON.stringify(params.data),
-                    MessageAttributes
-                })
-                .promise();
-        } catch (error) {
-            if (!process.env.unittest) {
-                console.error(error);
+                    MessageAttributes: {...default_attributes, ...custom_attributes}
+                };
+                await this.sns.publish(publish).promise();
+            } catch (error) {
+                if (!process.env.unittest) {
+                    console.error(error);
+                }
             }
         }
     }
-};
+    _getDefaultAttributes(operation) {
+        const attributes = {
+            model_schema: {
+                DataType: 'String',
+                StringValue: this.modelSchema
+            },
+            model_identifier: {
+                DataType: 'String',
+                StringValue: this.modelIdentifier
+            },
+            operation: {
+                DataType: 'String',
+                StringValue: operation
+            }
+        };
+        if (this.authorIdentifier) {
+            attributes.author_identifier = {
+                DataType: 'String',
+                StringValue: this.authorIdentifier
+            };
+        }
+        return attributes;
+    }
+    _formatCustomAttributes() {
+        const formatted = {};
+        if (this.snsAttributes) {
+            for (const [key, value] of Object.entries(this.snsAttributes)) {
+                formatted[key] = {
+                    DataType: 'String',
+                    StringValue: value
+                };
+            }
+        }
+        return formatted;
+    }
+}
+
+module.exports = SNSPublisher;

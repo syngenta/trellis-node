@@ -1,7 +1,7 @@
 const neo4j = require('neo4j-driver');
 const schemaMapper = require('./common/schemaMapper');
 const merger = require('./common/merger');
-const publisher = require('./common/publisher');
+const SNSPublisher = require('./common/publisher');
 
 class Neo4JAdapter {
     constructor(params) {
@@ -15,6 +15,15 @@ class Neo4JAdapter {
         this._autoConnect = params.autoConnect !== false ? true : params.autoConnect;
         this._driver = null;
         this._session = null;
+        this._publisher = new SNSPublisher({
+            topicArn: params.snsTopicArn,
+            authorIdentifier: params.authorIdentifier,
+            modelIdentifier: params.modelIdentifier,
+            modelSchema: params.modelSchema,
+            snsAttributes: params.snsAttributes,
+            snsRegion: params.snsRegion || params.region,
+            snsEndpoint: params.snsEndpoint || params.endpoint
+        });
         this._autoOpen();
     }
 
@@ -316,15 +325,7 @@ class Neo4JAdapter {
     }
 
     async _publish(operation, data) {
-        await publisher.publish({
-            snsTopicArn: this._snsTopicArn,
-            authorIdentifier: this._authorIdentifier,
-            modelIdentifier: this._modelIdentifier,
-            modelSchema: this._modelSchema,
-            operation,
-            data,
-            snsAttributes: this._snsAttributes
-        });
+        await this._publisher.publish({operation, data});
     }
 }
 
