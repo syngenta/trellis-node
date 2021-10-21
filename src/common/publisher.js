@@ -11,7 +11,7 @@ class SNSPublisher {
         this.snsAttributes = params.snsAttributes;
     }
     async publish(params) {
-        if (params.data) {
+        if (params.data && this.topicArn) {
             try {
                 const default_attributes = this._getDefaultAttributes(params.operation);
                 const custom_attributes = this._formatCustomAttributes();
