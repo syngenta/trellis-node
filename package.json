@@ -21,7 +21,7 @@
         "aws-sdk": "^2.970.0",
         "deepmerge": "^4.2.1",
         "js-yaml": "^4.1.0",
-        "json-schema-ref-parser": "^9.0.7",
+        "json-schema-ref-parser": "^9.0.9",
         "neo4j-driver": "^4.3.3"
     },
     "devDependencies": {
