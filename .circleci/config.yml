@@ -64,7 +64,7 @@ jobs:
             -
                 image: localstack/localstack-full:latest
                 environment:
-                    - SERVICES=sns
+                    - SERVICES=sns,s3
                     - DEBUG=1
                     - DEFAULT_REGION=us-east-2
                     - DATA_DIR=/tmp/localstack/data
