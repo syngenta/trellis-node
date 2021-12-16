@@ -1,3 +1,4 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=syngenta-digital_dta-node&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=syngenta-digital_dta-node)
 # dta-node
 A DRY multi-database normalizer which forces atomic writes.
 
@@ -233,6 +234,132 @@ const results = await adapter.update({
 const results = await adapter.delete({
     deleteIdentifier: '859152'
 });
+```
+
+## Common Usage: S3
+
+```javascript
+const adapter = await dataAdapter.getAdapter({
+    engine: 'S3',
+    bucket: 'growers',
+    modelSchema: 'v1-grower-model',
+    modelSchemaFile: 'application/openapi.yml',
+    modelIdentifier: 'grower_id',
+    modelVersionKey: 'modified'
+});
+
+// for local development with a local instance of s3 use config object, ex:
+// const adapter = dataAdapter.getAdapter({
+//     engine: 's3',
+//     bucket,
+//     modelSchema: 'v1-grower-model',
+//     modelSchemaFile: 'test/openapi.yml',
+//     modelIdentifier: 'test_id',
+//     modelVersionKey: 'modified',
+//     config: {
+//         s3ForcePathStyle: true,
+//         accessKeyId: 'S3_ACCESS',
+//         secretAccessKey: 'S3_KEY',
+//         region: 'us-east-2',
+//         endpoint: new AWS.Endpoint('http://localhost:4566')
+//     }
+// });
+```
+
+**Initialize Options**
+
+Option Name       | Required | Type   | Description
+:-----------      | :------- | :----- | :----------
+`engine`          | true     | string | name of supported db engine (dynamodb, neo4j)
+`modelSchemaFile` | true     | string | path where your schema file can found (accepts JSON as well)
+`modelIdentifier` | true     | string | unique identifier key on the model
+`modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
+`authorIdentifier`| false    | string | unique identifier of the author who made the change (optional)
+`snsTopicArn`     | false    | string | sns topic arn you want to broadcast the changes to
+`snsAttributes`   | false    | string | sns custom attributues to add to the sns message
+
+
+```javascript
+//create
+const params = {
+    key: 'create-test.txt',
+    encode: true,
+    data: 'test=true'
+};
+await adapter.create(params);
+
+//create with json
+const params = {
+    key: 'create-test.json',
+    json: true,
+    encode: true,
+    data: {
+        test: true
+    }
+};
+await adapter.create(params);
+
+//upload file from disk
+const params = {
+    key: 'upload.yml',
+    path: 'test/openapi.yml'
+};
+await adapter.upload(params);
+
+//read
+const object = await adapter.read({
+    key: 'read-test.txt',
+    decode: true
+});
+
+//read with json
+await adapter.create({
+    key: 'read-test.json',
+    json: true,
+    encode: true,
+    data: {
+        test: true
+    }
+});
+
+//update (will throw error if object doesn't exist)
+await adapter.update({
+    key: 'update-test.json',
+    json: true,
+    encode: true,
+    data: {
+        test: false
+    }
+});
+
+//download file to disk (will create directories if they don't exist)
+await adapter.download({
+    key: 'download.yml',
+    path: 'unit/test/openapi-test-download.yml'
+});
+
+//delete (will throw error if object doesn't exist)
+await adapter.delete({key: 'delete-test.json'});
+
+//get object versions
+await adapter.getVersions({key: 'versions-test.json'});
+
+// returns
+// [
+//   {
+//     ETag: '"5cabb4ed9dc2546bae6ab03065c242fc"',
+//     Size: 25,
+//     StorageClass: 'STANDARD',
+//     Key: 'versions-test.json',
+//     VersionId: 'null',
+//     IsLatest: true,
+//     LastModified: 2021-12-15T22:25:05.000Z,
+//     Owner: {
+//       DisplayName: 'webfile',
+//       ID: '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'
+//     }
+//   }
+// ]
 ```
 
 ## Contributing
