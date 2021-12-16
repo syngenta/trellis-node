@@ -30,7 +30,8 @@ commands:
                 path: ./coverage
     npm-deploy:
         steps:
-            - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+            - run: echo "registry=https://registry.npmjs.org" >> .npmrc
+            - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
             - run: npm version $CIRCLE_TAG --allow-same-version --no-git-tag-version
             - run: npm publish --access public
 jobs:
