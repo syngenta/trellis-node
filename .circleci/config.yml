@@ -1,7 +1,6 @@
 version: 2.1
 orbs:
     aws-cli: circleci/aws-cli@1.2.1
-    slack: circleci/slack@3.4.2
 commands:
     node-install:
         steps:
@@ -33,15 +32,6 @@ commands:
             - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
             - run: npm version $CIRCLE_TAG --allow-same-version --no-git-tag-version
             - run: npm publish --access public
-    slack-status:
-        steps:
-            - slack/status:
-                mentions: '${CIRCLE_USERNAME}, version=$CIRCLE_TAG'
-    slack-error:
-        steps:
-            - slack/status:
-                fail_only: true
-                mentions: '${CIRCLE_USERNAME}'
 jobs:
     install-build-test:
         docker:
@@ -75,7 +65,6 @@ jobs:
             - node-linter
             - node-test
             - node-report
-            - slack-error
     install-build-deploy:
         docker:
             - image: node:12
@@ -83,7 +72,6 @@ jobs:
             - checkout
             - node-install
             - npm-deploy
-            - slack-status
 workflows:
     install-build-deploy:
         jobs:
