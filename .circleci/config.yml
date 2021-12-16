@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
     aws-cli: circleci/aws-cli@1.2.1
+    sonarcloud: sonarsource/sonarcloud@1.0.2
 commands:
     node-install:
         steps:
@@ -65,6 +66,7 @@ jobs:
             - node-linter
             - node-test
             - node-report
+            - sonarcloud/scan
     install-build-deploy:
         docker:
             - image: node:12
@@ -78,6 +80,7 @@ workflows:
             - install-build-deploy:
                 context:
                     - npm-org-token
+                    - sonarcloud-token
                     - shared-fake-aws-creds
                 filters:
                     tags:
@@ -89,6 +92,7 @@ workflows:
             - install-build-test:
                 context:
                     - npm-org-token
+                    - sonarcloud-token
                     - shared-fake-aws-creds
                 filters:
                     tags:
