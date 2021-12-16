@@ -1,5 +1,5 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=syngenta-digital_package-node-dta&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=syngenta-digital_package-node-dta) [![CircleCI](https://circleci.com/gh/syngenta-digital/package-node-dta.svg?style=shield)](https://circleci.com/gh/syngenta-digital/package-node-dta)
-# dta-node
+# dta
 A DRY multi-database normalizer which forces atomic writes.
 
 ## Installation
