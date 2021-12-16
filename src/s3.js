@@ -29,7 +29,7 @@ class S3Adapter {
                 Bucket: this._bucket,
                 Key: params.key
             };
-            await this._s3.headObject(params).promise();
+            await this._s3.headObject(head).promise();
             return true;
         } catch (error) {
             return false;
