@@ -2,14 +2,14 @@
     "name": "@syngenta-digital/dta",
     "author": "Paul Cruse, Enginerring Lead, Syngenta Digital",
     "main": "src/index.js",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/syngenta-digital/dta-node.git"
+        "url": "git+https://github.com/syngenta-digital/package-node-dta.git"
     },
     "bugs": {
-        "url": "https://github.com/syngenta-digital/dta-node/issues"
+        "url": "https://github.com/syngenta-digital/package-node-dta/issues"
     },
     "scripts": {
         "test": "unittest=true nyc mocha --recursive --timeout 10000",
