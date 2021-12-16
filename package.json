@@ -14,7 +14,7 @@
     "scripts": {
         "test": "unittest=true nyc mocha --recursive --timeout 10000",
         "local": "docker-compose -f test/local/databases.yml up --remove-orphans",
-        "report": "nyc report",
+        "report": "unittest=true nyc report --reporter=lcov",
         "lint": "eslint src/**"
     },
     "dependencies": {

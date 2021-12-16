@@ -25,7 +25,7 @@ commands:
                 path: ./coverage
     node-report:
         steps:
-            - run: npm run report -- --reporter=html
+            - run: npm run report
             - store_artifacts:
                 path: ./coverage
     npm-deploy:
