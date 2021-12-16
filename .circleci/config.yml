@@ -89,8 +89,8 @@ workflows:
         jobs:
             - install-build-deploy:
                 context:
-                    - tools-cicd
                     - npm-org-token
+                    - shared-fake-aws-creds
                 filters:
                     tags:
                         only: /.*/
@@ -100,8 +100,8 @@ workflows:
         jobs:
             - install-build-test:
                 context:
-                    - tools-cicd
                     - npm-org-token
+                    - shared-fake-aws-creds
                 filters:
                     tags:
                         ignore: /.*/
