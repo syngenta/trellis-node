@@ -23,7 +23,7 @@ $ npm install @syngenta-digital/dta
 ## Common Usage: DynamoDB
 
 ```javascript
-const dataAdapter = require('@syngenta-digita/dta');
+const dataAdapter = require('@syngenta-digital/dta');
 
 // initialization
 const adapter = dataAdapter.getAdapter({
