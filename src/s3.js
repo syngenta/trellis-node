@@ -51,7 +51,8 @@ class S3Adapter {
                 ACL: params.public ? 'public-read' : params.acl
             })
             .promise();
-        this._publish('create', this._generatePublishData(params));
+        const publishData = await this._generatePublishData(params);
+        this._publish('create', publishData);
         return response;
     }
 
@@ -66,7 +67,8 @@ class S3Adapter {
                 ACL: params.public ? 'public-read' : params.acl
             })
             .promise();
-        this._publish('create', this._generatePublishData(params));
+        const publishData = await this._generatePublishData(params);
+        this._publish('create', publishData);
         return response;
     }
 
@@ -99,7 +101,8 @@ class S3Adapter {
     async update(params) {
         await this.check(params);
         const response = await this.put(params);
-        this._publish('update', this._generatePublishData(params));
+        const publishData = await this._generatePublishData(params);
+        this._publish('update', publishData);
         return response;
     }
 
