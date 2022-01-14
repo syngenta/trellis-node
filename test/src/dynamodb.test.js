@@ -360,7 +360,6 @@ describe('Test Dynamo Adapter', () => {
         });
     });
     after(async () => {
-        console.log('DDB AFTER!!');
         try {
             await dynamodb.deleteTable({TableName: 'unittest'}).promise();
         } catch (error) {

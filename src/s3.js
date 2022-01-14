@@ -104,8 +104,28 @@ class S3Adapter {
     }
 
     async delete(params) {
-        await this._s3.deleteObject({Bucket: this._bucket, Key: params.key}).promise();
+        if (params.versions) {
+            const raw_versions = await this._s3
+                .listObjectVersions({Bucket: this._bucket, Prefix: params.key})
+                .promise();
+            const versions = raw_versions.Versions.concat(raw_versions.DeleteMarkers);
+            for (const version of versions) {
+                await this._s3
+                    .deleteObject({Bucket: this._bucket, Key: params.key, VersionId: version.VersionId})
+                    .promise();
+            }
+        } else {
+            await this._s3.deleteObject({Bucket: this._bucket, Key: params.key}).promise();
+        }
         this._publish('delete', {key: params.key});
+    }
+
+    async presignedUrl(params) {
+        return this._s3.getSignedUrl('getObject', {
+            Bucket: this._bucket,
+            Key: params.key,
+            VersionId: params.version
+        });
     }
 
     async _publish(operation, data) {
@@ -119,10 +139,6 @@ class S3Adapter {
         if (!(await fs.existsSync(directory))) {
             await fs.mkdirSync(directory, {recursive: true});
         }
-    }
-
-    async presignedUrl(params) {
-        return this._s3.getSignedUrl('getObject', {Bucket: this._bucket, Key: params.key});
     }
 
     async _generatePublishData(params) {

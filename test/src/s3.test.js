@@ -32,6 +32,7 @@ describe('Test S3 Adapter', () => {
         try {
             await s3.createBucket({Bucket: bucket}).promise();
             await s3.headBucket({Bucket: bucket}).promise();
+            await s3.putBucketVersioning({Bucket: bucket, VersioningConfiguration: {Status: 'Enabled'}}).promise();
         } catch (error) {
             console.error(error);
         }
@@ -176,6 +177,23 @@ describe('Test S3 Adapter', () => {
                 assert.equal(false, true);
             }
         });
+        it('adapter delete hard works', async () => {
+            try {
+                await adapter.create({
+                    key: 'delete-test.json',
+                    json: true,
+                    encode: true,
+                    data: {
+                        test: true
+                    }
+                });
+                await adapter.delete({key: 'delete-test.json', versions: true});
+                assert.equal(true, true);
+            } catch (error) {
+                console.error(error);
+                assert.equal(false, true);
+            }
+        });
         it('adapter delete works', async () => {
             try {
                 await adapter.create({
@@ -222,11 +240,45 @@ describe('Test S3 Adapter', () => {
                     }
                 });
                 const versions = await adapter.getVersions({key: 'versions-test.json'});
-                assert.equal(versions.length, 1);
+                assert.equal(versions.length > 0, true);
             } catch (error) {
                 console.error(error);
                 assert.equal(false, true);
             }
+        });
+        it('adapter get specific version presigned url works', async () => {
+            const key = 'version-url-test.json';
+            await adapter.create({
+                key,
+                json: true,
+                encode: true,
+                data: {
+                    version: 1,
+                    test: true
+                }
+            });
+            await adapter.create({
+                key,
+                json: true,
+                encode: true,
+                data: {
+                    version: 2,
+                    test: true
+                }
+            });
+            await adapter.create({
+                key,
+                json: true,
+                encode: true,
+                data: {
+                    version: 3,
+                    test: true
+                }
+            });
+            const versions = await adapter.getVersions({key});
+            const version = versions[0].VersionId;
+            const presignedUrl = await adapter.presignedUrl({key, version});
+            assert.equal(presignedUrl.includes(`versionId=${version}`), true);
         });
     });
     after(async () => {
@@ -240,10 +292,29 @@ describe('Test S3 Adapter', () => {
         try {
             const {Contents} = await s3.listObjects({Bucket: bucket}).promise();
             if (Contents.length > 0) {
-                await s3.deleteObjects({Bucket: bucket, Delete: {Objects: Contents.map(({Key}) => ({Key}))}}).promise();
+                Contents.push({Key: 'delete-test.json'});
+                for (const content of Contents) {
+                    const versions = await s3.listObjectVersions({Bucket: bucket, Prefix: content.Key}).promise();
+                    if (versions.Versions.length > 0) {
+                        await s3
+                            .deleteObjects({
+                                Bucket: bucket,
+                                Delete: {Objects: versions.Versions.map(({Key, VersionId}) => ({Key, VersionId}))}
+                            })
+                            .promise();
+                    }
+                    if (versions.DeleteMarkers.length > 0) {
+                        await s3
+                            .deleteObjects({
+                                Bucket: bucket,
+                                Delete: {Objects: versions.DeleteMarkers.map(({Key, VersionId}) => ({Key, VersionId}))}
+                            })
+                            .promise();
+                    }
+                }
             }
-            await s3.deleteBucket({Bucket: bucket}).promise();
             await fs.rmdirSync('unit', {recursive: true});
+            await s3.deleteBucket({Bucket: bucket}).promise();
         } catch (error) {
             console.error(error);
         }
