@@ -19,7 +19,7 @@ describe('Test Neo4j Adapter', () => {
     describe('Real Neo4j Queries', async () => {
         before(async () => {
             console.log('\n\n==== STARTING NEO4J UNIT TESTS ====\n\n');
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -28,14 +28,12 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
+            await adapter.open();
             await adapter._session.run(`MATCH (n) DETACH DELETE n`);
             await adapter.close();
         });
-        after(async () => {
-            console.log('\n\n==== FINISHING NEO4J UNIT TESTS ====\n\n');
-        });
         it('adapter check works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -48,7 +46,7 @@ describe('Test Neo4j Adapter', () => {
             assert.equal(results, true);
         });
         it('adapter create works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -63,7 +61,7 @@ describe('Test Neo4j Adapter', () => {
             assert.deepEqual(results, baseData);
         });
         it('adapter create relationship works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -76,12 +74,10 @@ describe('Test Neo4j Adapter', () => {
             await adapter.create({
                 data: baseData
             });
-            await adapter.open();
             baseData.test_id = 'abc123-2';
             await adapter.create({
                 data: baseData
             });
-            await adapter.open();
             const results = await adapter.createRelationship({
                 query: `MATCH
                     (u1:unittest), (u2:unittest)
@@ -98,7 +94,7 @@ describe('Test Neo4j Adapter', () => {
             assert.deepEqual(jsonRecords[0].keys, ['u1', 'u2']);
         });
         it('adapter read works (with serialize)', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -111,7 +107,6 @@ describe('Test Neo4j Adapter', () => {
             await adapter.create({
                 data: baseData
             });
-            await adapter.open();
             const results = await adapter.read({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
                 placeholder: {test_id: 'abc123-3'}
@@ -129,7 +124,7 @@ describe('Test Neo4j Adapter', () => {
             });
         });
         it('adapter read works (without serialize)', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -142,7 +137,6 @@ describe('Test Neo4j Adapter', () => {
             await adapter.create({
                 data: baseData
             });
-            await adapter.open();
             const results = await adapter.read({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
                 placeholder: {test_id: 'abc123-4'},
@@ -151,7 +145,7 @@ describe('Test Neo4j Adapter', () => {
             assert.equal(results.length, 1);
         });
         it('adapter update works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -164,7 +158,6 @@ describe('Test Neo4j Adapter', () => {
             await adapter.create({
                 data: baseData
             });
-            await adapter.open();
             const results = await adapter.update({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
                 placeholder: {test_id: 'abc123-5'},
@@ -182,7 +175,7 @@ describe('Test Neo4j Adapter', () => {
             });
         });
         it('adapter delete works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -212,7 +205,7 @@ describe('Test Neo4j Adapter', () => {
             });
         });
         it('adapter query works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -232,23 +225,8 @@ describe('Test Neo4j Adapter', () => {
             const jsonRecords = JSON.parse(JSON.stringify(results.records));
             assert.equal(jsonRecords.length, 1);
         });
-
-        it('adapter auto connect works', async () => {
-            const adapter = await dataAdapter.getAdapter({
-                engine: 'neo4j',
-                node: 'unittest',
-                bolt: boltConfg,
-                modelIdentifier: 'test_id',
-                modelVersionKey: 'modified',
-                modelSchema: 'test-neo4j-model',
-                modelSchemaFile: 'test/openapi.yml'
-            });
-            assert.equal(adapter._session._open, true);
-            await adapter.close();
-            assert.equal(adapter._session._open, false);
-        });
         it('adapter manual connect works', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -265,7 +243,7 @@ describe('Test Neo4j Adapter', () => {
             assert.equal(adapter._session._open, false);
         });
         it('adapter manual connect & sequential queries work', async () => {
-            const adapter = await dataAdapter.getAdapter({
+            const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: boltConfg,
@@ -334,7 +312,7 @@ describe('Test Neo4j Adapter', () => {
             await adapter.close();
         });
         it('adapter reads relationships', async () => {
-            const u2Adapter = await dataAdapter.getAdapter({
+            const u2Adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest2',
                 bolt: boltConfg,
@@ -350,7 +328,7 @@ describe('Test Neo4j Adapter', () => {
                 data: baseData
             });
             await u2Adapter.close();
-            const u1Adapter = await dataAdapter.getAdapter({
+            const u1Adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest1',
                 bolt: boltConfg,
@@ -400,6 +378,9 @@ describe('Test Neo4j Adapter', () => {
                 ]
             });
             await u1Adapter.close();
+        });
+        after(async () => {
+            console.log('\n\n==== FINISHING NEO4J UNIT TESTS ====\n\n');
         });
     });
 });

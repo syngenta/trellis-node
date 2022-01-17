@@ -63,9 +63,9 @@ class Neo4JAdapter {
             throw 'INTEGRITY ERROR: Please only use this function to create relationships;';
         }
         const result = await this._session.run(params.query, params.placeholder);
-        await this._publish('create', result);
         this._checkDebug(params, result);
         await this._autoClose();
+        await this._publish('create', result);
         return result;
     }
 
@@ -91,9 +91,9 @@ class Neo4JAdapter {
     }
 
     async set(params) {
-        await this._autoOpen();
         params.serialize = false;
         const originalData = await this.match(params);
+        await this._autoOpen();
         if (!originalData.length) {
             throw 'ATOMIC ERROR: No records found; record must have been deleted';
         }

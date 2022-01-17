@@ -14,7 +14,7 @@ describe('Test Data adapter', () => {
     describe('Get DynamoDB Adapter', async () => {
         let adapter = null;
         before(async () => {
-            adapter = await dataAdapter.getAdapter({
+            adapter = dataAdapter.getAdapter({
                 engine: 'dynamodb',
                 endpoint: 'http://localhost:4000',
                 region: 'us-east-2',
@@ -38,7 +38,7 @@ describe('Test Data adapter', () => {
     describe('Get Neo4j Adapter', async () => {
         let adapter = null;
         before(async () => {
-            adapter = await dataAdapter.getAdapter({
+            adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
                 bolt: {
@@ -62,7 +62,7 @@ describe('Test Data adapter', () => {
     describe('Throws Error', async () => {
         it('throws unsupported error', async () => {
             try {
-                await dataAdapter.getAdapter({
+                dataAdapter.getAdapter({
                     engine: 'not-a-db',
                     modelIdentifier: 'test_id',
                     modelVersionKey: 'modified',
