@@ -9,6 +9,12 @@ const baseData = {
     modified: '2020-10-05'
 };
 
+const boltConfg = {
+    url: 'bolt://localhost:7687',
+    user: 'neo4j',
+    password: 'password'
+};
+
 describe('Test Neo4j Adapter', () => {
     describe('Real Neo4j Queries', async () => {
         before(async () => {
@@ -16,11 +22,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -36,11 +38,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -53,11 +51,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -72,11 +66,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -111,11 +101,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -146,11 +132,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -172,11 +154,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -207,11 +185,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -241,11 +215,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -267,11 +237,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 modelSchema: 'test-neo4j-model',
@@ -285,11 +251,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
@@ -306,11 +268,7 @@ describe('Test Neo4j Adapter', () => {
             const adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
@@ -379,11 +337,7 @@ describe('Test Neo4j Adapter', () => {
             const u2Adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest2',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
@@ -399,11 +353,7 @@ describe('Test Neo4j Adapter', () => {
             const u1Adapter = await dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest1',
-                bolt: {
-                    url: 'bolt://localhost:7687',
-                    user: 'neo4j',
-                    password: 'password'
-                },
+                bolt: boltConfg,
                 modelIdentifier: 'test_id',
                 modelVersionKey: 'modified',
                 autoConnect: false,
