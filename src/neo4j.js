@@ -1,5 +1,5 @@
 const neo4j = require('neo4j-driver');
-const schemaMapper = require('./common/schemaMapper');
+const SchemaMapper = require('./common/schemaMapper');
 const merger = require('./common/merger');
 const SNSPublisher = require('./common/publisher');
 
@@ -15,6 +15,11 @@ class Neo4JAdapter {
         this._autoConnect = params.autoConnect !== false ? true : params.autoConnect;
         this._driver = null;
         this._session = null;
+        this._schemaMapper = new SchemaMapper({
+            validate: params.validateSchema !== false ? true : params.validateSchema,
+            schema: this._modelSchema,
+            file: this._modelSchemaFile
+        });
         this._publisher = new SNSPublisher({
             topicArn: params.snsTopicArn,
             authorIdentifier: params.authorIdentifier,
@@ -40,7 +45,7 @@ class Neo4JAdapter {
 
     async create(params) {
         params.query = `CREATE(:${this._node} $placeholder)`;
-        const data = await schemaMapper.mapToSchema(params.data, this._modelSchema, this._modelSchemaFile);
+        const data = await this._schemaMapper.map(params.data);
         const result = await this._session.writeTransaction(async (txc) => {
             const records = await txc.run(params.query, {placeholder: data});
             return records;
@@ -89,7 +94,7 @@ class Neo4JAdapter {
             throw 'ATOMIC ERROR: No records found; record must have been deleted';
         }
         const mergedData = await merger.merge(params, originalData[0]._fields[0].properties);
-        const updatedData = await schemaMapper.mapToSchema(mergedData, this._modelSchema, this._modelSchemaFile);
+        const updatedData = await this._schemaMapper.map(mergedData);
         params.updateQuery = `MATCH (n:${this._node}) WHERE n.${this._modelIdentifier} = $id AND n.${this._modelVersionKey} = $version SET n = $placeholder RETURN n`;
         this._autoOpen();
         const result = await this._session.writeTransaction(async (txc) => {

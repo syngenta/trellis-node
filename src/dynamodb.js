@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const schemaMapper = require('./common/schemaMapper');
+const SchemaMapper = require('./common/schemaMapper');
 const merger = require('./common/merger');
 const SNSPublisher = require('./common/publisher');
 
@@ -10,6 +10,11 @@ class DynamodbAdapter {
         this._modelSchemaFile = params.modelSchemaFile;
         this._modelVersionKey = params.modelVersionKey;
         this._modelIdentifier = params.modelIdentifier;
+        this._schemaMapper = new SchemaMapper({
+            validate: params.validateSchema !== false ? true : params.validateSchema,
+            schema: this._modelSchema,
+            file: this._modelSchemaFile
+        });
         this._publisher = new SNSPublisher({
             topicArn: params.snsTopicArn,
             authorIdentifier: params.authorIdentifier,
@@ -107,7 +112,7 @@ class DynamodbAdapter {
     async update(params) {
         const originalData = await this._getOriginalData(params);
         const mergedData = await merger.merge(params, originalData);
-        const updatedData = await schemaMapper.mapToSchema(mergedData, this._modelSchema, this._modelSchemaFile);
+        const updatedData = await this._schemaMapper.map(mergedData);
         await this._prepareQuery(params, updatedData);
         await this._dynamodb.put(params.query).promise();
         await this._publish('update', params.query.Item);
@@ -188,7 +193,7 @@ class DynamodbAdapter {
     async _prepareBatchOverwriteQuery(params) {
         const items = [];
         for (const data of params.data) {
-            const Item = await schemaMapper.mapToSchema(data, this._modelSchema, this._modelSchemaFile);
+            const Item = await this._schemaMapper.map(data);
             items.push({PutRequest: {Item}});
         }
         return items;
@@ -209,7 +214,7 @@ class DynamodbAdapter {
     }
 
     async _prepareInsertQuery(params) {
-        const data = await schemaMapper.mapToSchema(params.data, this._modelSchema, this._modelSchemaFile);
+        const data = await this._schemaMapper.map(params.data);
         params.query = params.query ? params.query : {};
         params.query.Item = data;
         params.query.TableName = this._table;
