@@ -29,13 +29,13 @@ class Neo4JAdapter {
             snsRegion: params.snsRegion || params.region,
             snsEndpoint: params.snsEndpoint || params.endpoint
         });
-        this._autoOpen();
     }
 
     async check() {
         try {
+            await this._autoOpen();
             const result = await this._session.run(`MATCH () RETURN 1 LIMIT 1`);
-            this._autoClose();
+            await this._autoClose();
             return !!result.summary;
         } catch (error) {
             console.warn(error);
@@ -44,6 +44,7 @@ class Neo4JAdapter {
     }
 
     async create(params) {
+        await this._autoOpen();
         params.query = `CREATE(:${this._node} $placeholder)`;
         const data = await this._schemaMapper.map(params.data);
         const result = await this._session.writeTransaction(async (txc) => {
@@ -51,19 +52,20 @@ class Neo4JAdapter {
             return records;
         });
         this._checkDebug(params, result);
-        this._autoClose();
+        await this._autoClose();
         await this._publish('create', data);
         return data;
     }
 
     async createRelationship(params) {
+        await this._autoOpen();
         if (!params.query.includes('-') && !params.query.includes('[')) {
             throw 'INTEGRITY ERROR: Please only use this function to create relationships;';
         }
         const result = await this._session.run(params.query, params.placeholder);
         await this._publish('create', result);
         this._checkDebug(params, result);
-        this._autoClose();
+        await this._autoClose();
         return result;
     }
 
@@ -73,12 +75,13 @@ class Neo4JAdapter {
     }
 
     async match(params) {
+        await this._autoOpen();
         const result = await this._session.readTransaction(async (txc) => {
             const records = await txc.run(params.query, params.placeholder);
             return records;
         });
         this._checkDebug(params, result);
-        this._autoClose();
+        await this._autoClose();
         return result.records ? this._serialize(result.records, params.serialize, params.search) : [];
     }
 
@@ -88,6 +91,7 @@ class Neo4JAdapter {
     }
 
     async set(params) {
+        await this._autoOpen();
         params.serialize = false;
         const originalData = await this.match(params);
         if (!originalData.length) {
@@ -96,7 +100,6 @@ class Neo4JAdapter {
         const mergedData = await merger.merge(params, originalData[0]._fields[0].properties);
         const updatedData = await this._schemaMapper.map(mergedData);
         params.updateQuery = `MATCH (n:${this._node}) WHERE n.${this._modelIdentifier} = $id AND n.${this._modelVersionKey} = $version SET n = $placeholder RETURN n`;
-        this._autoOpen();
         const result = await this._session.writeTransaction(async (txc) => {
             const records = await txc.run(params.updateQuery, {
                 id: updatedData[this._modelIdentifier],
@@ -109,7 +112,7 @@ class Neo4JAdapter {
             throw 'ATOMIC ERROR: No records updated; version has changed';
         }
         this._checkDebug(params, result);
-        this._autoClose();
+        await this._autoClose();
         await this._publish('update', updatedData);
         return updatedData;
     }
@@ -120,14 +123,17 @@ class Neo4JAdapter {
     }
 
     async remove(params) {
+        await this._autoOpen();
         const readResult = await this._getBeforeDelete(params);
         const delResult = await this._performDelete(params);
         this._checkDebug(params, delResult);
+        await this._autoClose();
         await this._publish('delete', readResult);
         return readResult;
     }
 
     async query(queryString, searchCriteria) {
+        await this._autoOpen();
         if (!queryString.includes('$')) {
             throw 'SECURITY ERROR: You must use placeholders with symbol $ to avoid injection;';
         }
@@ -135,43 +141,41 @@ class Neo4JAdapter {
             const records = await txc.run(queryString, searchCriteria);
             return records;
         });
-        this._autoClose();
+        await this._autoClose();
         return result;
     }
 
-    _autoOpen() {
+    async _autoOpen() {
         if (this._autoConnect) {
-            this._driver = neo4j.driver(this._bolt.url, neo4j.auth.basic(this._bolt.user, this._bolt.password));
-            this._session = this._driver.session();
+            await this.open();
         }
     }
 
-    _autoClose() {
+    async _autoClose() {
         if (this._autoConnect) {
-            this._session.close();
-            this._driver.close();
+            await this.close();
         }
     }
 
-    open() {
-        this._driver = neo4j.driver(this._bolt.url, neo4j.auth.basic(this._bolt.user, this._bolt.password));
-        this._session = this._driver.session();
+    async open() {
+        this._driver = await neo4j.driver(this._bolt.url, neo4j.auth.basic(this._bolt.user, this._bolt.password));
+        this._session = await this._driver.session();
     }
 
-    close() {
-        this._session.close();
-        this._driver.close();
+    async close() {
+        await this._session.close();
+        await this._driver.close();
     }
 
     async _performDelete(params) {
-        this._autoOpen();
+        await this._autoOpen();
         params.deleteQuery = `MATCH (n:${this._node}) WHERE n.${this._modelIdentifier} = $id WITH n LIMIT 1 DETACH DELETE (n)`;
         params.deleteParams = {id: params.deleteIdentifier};
         const result = await this._session.writeTransaction(async (txc) => {
             const records = await txc.run(params.deleteQuery, params.deleteParams);
             return records;
         });
-        this._autoClose();
+        await this._autoClose();
         return result;
     }
 
