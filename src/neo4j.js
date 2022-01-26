@@ -158,8 +158,8 @@ class Neo4JAdapter {
     }
 
     async open() {
-        this._driver = await neo4j.driver(this._bolt.url, neo4j.auth.basic(this._bolt.user, this._bolt.password));
-        this._session = await this._driver.session();
+        this._driver = neo4j.driver(this._bolt.url, neo4j.auth.basic(this._bolt.user, this._bolt.password));
+        this._session = this._driver.session();
     }
 
     async close() {

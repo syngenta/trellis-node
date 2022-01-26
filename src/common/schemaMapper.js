@@ -12,8 +12,7 @@ class SchemaMapper {
     async map(data) {
         if (this.validate) {
             const schema = await this.__getSchema();
-            const schemaData = this.__populateSchemasWithData(schema, data);
-            return schemaData;
+            return this.__populateSchemasWithData(schema, data);
         }
         return data;
     }
