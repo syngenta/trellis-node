@@ -6,6 +6,7 @@ const SNSPublisher = require('./common/publisher');
 
 class S3Adapter {
     constructor(params) {
+        AWS.config.update({signatureVersion: 'v4'});
         this._bucket = params.bucket;
         this._modelSchema = params.modelSchema;
         this._modelSchemaFile = params.modelSchemaFile;
@@ -124,7 +125,7 @@ class S3Adapter {
     }
 
     async presignedUrl(params) {
-        return this._s3.getSignedUrl('getObject', {
+        return this._s3.getSignedUrlPromise('getObject', {
             Bucket: this._bucket,
             Key: params.key,
             VersionId: params.version
