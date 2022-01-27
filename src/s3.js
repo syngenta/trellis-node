@@ -6,13 +6,15 @@ const SNSPublisher = require('./common/publisher');
 
 class S3Adapter {
     constructor(params) {
-        AWS.config.update({signatureVersion: 'v4'});
+        const confg = params.config || {};
+        config.signatureVersion = 'v4';
+        config.maxRetries = 10;
         this._bucket = params.bucket;
         this._modelSchema = params.modelSchema;
         this._modelSchemaFile = params.modelSchemaFile;
         this._modelVersionKey = params.modelVersionKey;
         this._modelIdentifier = params.modelIdentifier;
-        this._s3 = params.s3 || new AWS.S3(params.config);
+        this._s3 = params.s3 || new AWS.S3(config);
         this._publisher = new SNSPublisher({
             topicArn: params.snsTopicArn,
             authorIdentifier: params.authorIdentifier,
