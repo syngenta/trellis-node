@@ -80,8 +80,8 @@ workflows:
         jobs:
             - install-build-deploy:
                 context:
-                    - npm-org-token
-                    - sonarcloud-token
+                    - shared-npm-org-token
+                    - shared-sonarcloud-token
                     - shared-fake-aws-creds
                 filters:
                     tags:
@@ -92,8 +92,8 @@ workflows:
         jobs:
             - install-build-test:
                 context:
-                    - npm-org-token
-                    - sonarcloud-token
+                    - shared-npm-org-token
+                    - shared-sonarcloud-token
                     - shared-fake-aws-creds
                 filters:
                     tags:
