@@ -113,22 +113,22 @@ export interface DynamoDBUpdateParams<TData> extends QueryParams<DynamoDBReadIte
 }
 
 declare class DynamodbAdapter {
-    async check(): Promise<boolean>;
-    async batchOverwrite<TData, TResult = TData>(params: DynamoDBBatchOverwriteParams<TData>): Promise<TResult>;
-    async batchGet<TKey, TResult>(params: DynamoDBBatchGetParams<TKey>): Promise<TResult>;
+    check(): Promise<boolean>;
+    batchOverwrite<TData, TResult = TData>(params: DynamoDBBatchOverwriteParams<TData>): Promise<TResult>;
+    batchGet<TKey, TResult>(params: DynamoDBBatchGetParams<TKey>): Promise<TResult>;
 
-    async create<TData, TResult = TData>(params: DynamoDBCreateParams<TData>): Promise<TResult>;
-    async insert<TData, TResult = TData>(params: DynamoDBInsertParams<TData>): Promise<TResult>;
-    async overwrite<TData, TResult = TData>(params: DynamoDBOverwriteParams<TData>): Promise<TResult>;
+    create<TData, TResult = TData>(params: DynamoDBCreateParams<TData>): Promise<TResult>;
+    insert<TData, TResult = TData>(params: DynamoDBInsertParams<TData>): Promise<TResult>;
+    overwrite<TData, TResult = TData>(params: DynamoDBOverwriteParams<TData>): Promise<TResult>;
 
-    async read<TResult = DynamoDBReadResult>(params: DynamoDBReadParams): Promise<TResult>;
-    async get<TResult = DynamoDBGetResult>(params: DynamoDBGetParams): Promise<TResult>;
-    async query<TResult = DynamoDBQueryResult>(params: DynamoDBQueryParams): Promise<TResult>;
-    async scan<TResult = DynamoDBScanResult>(params?: DynamoDBScanParams): Promise<TResult>;
+    read<TResult = DynamoDBReadResult>(params: DynamoDBReadParams): Promise<TResult>;
+    get<TResult = DynamoDBGetResult>(params: DynamoDBGetParams): Promise<TResult>;
+    query<TResult = DynamoDBQueryResult>(params: DynamoDBQueryParams): Promise<TResult>;
+    scan<TResult = DynamoDBScanResult>(params?: DynamoDBScanParams): Promise<TResult>;
 
-    async update<TData, TResult = TData>(params: DynamoDBUpdateParams<TData>): Promise<TResult>;
+    update<TData, TResult = TData>(params: DynamoDBUpdateParams<TData>): Promise<TResult>;
 
-    async delete<TResult = DynamoDBDeleteResult>(params: DynamoDBDeleteParams): Promise<TResult>;
+    delete<TResult = DynamoDBDeleteResult>(params: DynamoDBDeleteParams): Promise<TResult>;
 }
 
 export interface Neo4JReadParams extends QueryParams<string> {
@@ -156,20 +156,19 @@ export interface Neo4JCreateRelationshipParams {
 }
 
 declare class Neo4JAdapter {
-    async check(): Promise<boolean>;
-    async open(): Promise<void>;
-    async close(): Promise<void>;
-    async read<TResult>(params: Neo4JReadParams): Promise<TResult | []>;
-    async match<TResult>(params: Neo4JReadParams): Promise<TResult | []>;
-    async create<TData, TResult = TData>(params: Neo4JCreateParams<TData>): Promise<TResult>;
-    async createRelationship<TResult>(params: Neo4JCreateRelationshipParams): Promise<TResult>;
-    async update<TData, TResult = TData>(params: Neo4JUpdateParams<TData>): Promise<TResult>;
-    async set<TData, TResult = TData>(params: Neo4JUpdateParams<TData>): Promise<TResult>;
-    async delete<TResult>(params: Neo4JRemoveParams): Promise<TResult | []>;
-    async remove<TResult>(params: Neo4JRemoveParams): Promise<TResult | []>;
-    async query<TResult>(queryString: string, searchCriteria: Record<string, unknown>): Promise<TResult>;
+    check(): Promise<boolean>;
+    open(): Promise<void>;
+    close(): Promise<void>;
+    read<TResult>(params: Neo4JReadParams): Promise<TResult | []>;
+    match<TResult>(params: Neo4JReadParams): Promise<TResult | []>;
+    create<TData, TResult = TData>(params: Neo4JCreateParams<TData>): Promise<TResult>;
+    createRelationship<TResult>(params: Neo4JCreateRelationshipParams): Promise<TResult>;
+    update<TData, TResult = TData>(params: Neo4JUpdateParams<TData>): Promise<TResult>;
+    set<TData, TResult = TData>(params: Neo4JUpdateParams<TData>): Promise<TResult>;
+    delete<TResult>(params: Neo4JRemoveParams): Promise<TResult | []>;
+    remove<TResult>(params: Neo4JRemoveParams): Promise<TResult | []>;
+    query<TResult>(queryString: string, searchCriteria: Record<string, unknown>): Promise<TResult>;
 }
 
-function getAdapter(params: DynamoDBAdapterParams): DynamodbAdapter;
-function getAdapter(params: Neo4JAdapterParams): Neo4JAdapter;
-export function getAdapter(params: DtaAdapterParams): DynamodbAdapter | Neo4JAdapter;
+declare function getAdapter(params: DynamoDBAdapterParams): DynamodbAdapter;
+declare function getAdapter(params: Neo4JAdapterParams): Neo4JAdapter;
