@@ -14,11 +14,3 @@ export declare type BaseAdapterParams<TEngine extends string>  = {
     modelVersionKey: string;
     modelIdentifier: string;
 };
-
-export declare type QueryParams<TQuery>  = {
-    query: TQuery;
-};
-
-export declare type DataParams<TData>  = {
-    data: TData;
-};

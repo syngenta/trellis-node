@@ -1,36 +1,8 @@
-import {
-    DataParams,
-    QueryParams,
-    BaseAdapterParams
-} from './common';
-
-export declare type Neo4JEngine = 'neo4j'
-
-export declare type Neo4JAdapterParams = BaseAdapterParams<Neo4JEngine>;
-
-export declare type Neo4JReadParams = QueryParams<string> & {
-    serialize: boolean;
-    search: boolean;
-    debug?: boolean;
-};
-
-export declare type Neo4JCreateParams<TData> = DataParams<TData>;
-
-export declare type Neo4JUpdateParams<TData> = QueryParams<string> & DataParams<TData> & {
-    search: boolean;
-    originalVersionKey: string;
-    debug?: boolean;
-    overwriteArray?: boolean;
-};
-
-export declare type Neo4JRemoveParams = {
-    deleteIdentifier: string;
-};
-
-export declare type Neo4JCreateRelationshipParams = {
-    query: string;
-    placeholder: Record<string, unknown>;
-};
+import {Neo4JCreateParams} from './neo4j-create-params';
+import {Neo4JCreateRelationshipParams} from './neo4j-create-relationship-params';
+import {Neo4JReadParams} from './neo4j-read-params';
+import {Neo4JRemoveParams} from './neo4j-remove-params';
+import {Neo4JUpdateParams} from './neo4j-update-params';
 
 export declare class Neo4JAdapter {
     check(): Promise<boolean>;
