@@ -6,5 +6,3 @@ export declare type DynamoDBInsertOperation = 'insert';
 
 export declare type DynamoDBOperations =
     | DynamoDBQueryOperation | DynamoDBScanOperation | DynamoDBOverwriteOperation | DynamoDBGetOperation;
-
-export declare type DynamoDBCreateOperations = DynamoDBOverwriteOperation;
