@@ -1,4 +1,3 @@
-import {DtaKey} from './dta-key';
-import {ScanItemInput} from './scan-item-input';
+import {ScanInput} from 'aws-sdk/clients/dynamodb';
 
-export declare type DynamoDBScanItemInput = ScanItemInput<DtaKey>;
+export declare type DynamoDBScanItemInput = Omit<ScanInput, 'TableName'> & { unique_identifier?: string };

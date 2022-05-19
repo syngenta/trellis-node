@@ -1,4 +1,3 @@
-import {DtaKey} from './dta-key';
-import {ItemInput} from './item-input';
+import {DeleteItemInput} from 'aws-sdk/clients/dynamodb';
 
-export declare type DynamoDBDeleteItemInput = ItemInput<DtaKey>;
+export declare type DynamoDBDeleteItemInput = Omit<DeleteItemInput, 'TableName' | 'ReturnValues'>;

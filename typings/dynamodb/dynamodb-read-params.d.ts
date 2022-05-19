@@ -1,9 +1,10 @@
-import {QueryParams} from '../common/query-params';
-import {DynamoDBReadOperations} from './dynamodb-operations';
-import {DynamoDBQueryItemInput} from './dynamodb-query-item-input';
-import {DynamoDBReadItemInput} from './dynamodb-read-item-input';
-import {DynamoDBScanItemInput} from './dynamodb-scan-item-input';
 import {OperationsParams} from './operations-params';
+import {DynamoDBGetParams} from './dynamodb-get-params';
+import {DynamoDBQueryParams} from './dynamodb-query-params';
+import {DynamoDBScanParams} from './dynamodb-scan-params';
+import {DynamoDBGetOperation, DynamoDBScanOperation, DynamoDBQueryOperation} from './dynamodb-operations';
 
-export declare type DynamoDBReadParams = Partial<OperationsParams<DynamoDBReadOperations>>
-    & QueryParams<DynamoDBReadItemInput | DynamoDBQueryItemInput | DynamoDBScanItemInput>;
+export declare type DynamoDBReadParams = 
+    Partial<OperationsParams<DynamoDBGetOperation>> & DynamoDBGetParams
+| OperationsParams<DynamoDBScanOperation> & DynamoDBScanParams
+| OperationsParams<DynamoDBQueryOperation> & DynamoDBQueryParams;

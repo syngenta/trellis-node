@@ -1,3 +1,3 @@
-import {QueryItemInput} from './query-item-input';
+import {QueryInput} from 'aws-sdk/clients/dynamodb';
 
-export declare type DynamoDBQueryItemInput = QueryItemInput;
+export declare type DynamoDBQueryItemInput = Omit<QueryInput, 'TableName'>;

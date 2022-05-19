@@ -1,12 +1,15 @@
 import {DataParams} from '../common/data-params';
 import {QueryParams} from '../common/query-params';
-import {DynamoDBUpdateOperations} from './dynamodb-operations';
-import {DynamoDBReadItemInput} from './dynamodb-read-item-input';
+import {DynamoDBGetOperation, DynamoDBQueryOperation} from './dynamodb-operations';
+import {DynamoDBGetItemInput} from './dynamodb-get-item-input';
 import {OperationsParams} from './operations-params';
+import {DynamoDBQueryItemInput} from './dynamodb-query-item-input';
 
-export declare type DynamoDBUpdateParams<TData> = QueryParams<DynamoDBReadItemInput>
+type GetOriginalData = QueryParams<DynamoDBGetItemInput> & Partial<OperationsParams<DynamoDBGetOperation>>
+    | QueryParams<DynamoDBQueryItemInput> & OperationsParams<DynamoDBQueryOperation>;
+
+export declare type DynamoDBUpdateParams<TData> = GetOriginalData
     & DataParams<TData>
-    & Partial<OperationsParams<DynamoDBUpdateOperations>>
     & {
     overwriteArray?: boolean;
     originalVersionKey: string;
