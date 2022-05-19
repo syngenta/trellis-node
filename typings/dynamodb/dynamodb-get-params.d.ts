@@ -1,4 +1,4 @@
 import {QueryParams} from '../common/query-params';
-import {DynamoDBReadItemInput} from './dynamodb-read-item-input';
+import {DynamoDBGetItemInput} from './dynamodb-get-item-input';
 
-export declare type DynamoDBGetParams = QueryParams<DynamoDBReadItemInput>;
+export declare type DynamoDBGetParams = QueryParams<DynamoDBGetItemInput>;
