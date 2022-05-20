@@ -1,3 +1,3 @@
-import {GetItemInput} from 'aws-sdk/clients/dynamodb';
+import {DocumentClient} from 'aws-sdk/lib/dynamodb/document_client';
 
-export declare type DynamoDBGetItemInput = Omit<GetItemInput, 'TableName'>;
+export declare type DynamoDBGetItemInput = Omit<DocumentClient.GetItemInput, 'TableName'>;
