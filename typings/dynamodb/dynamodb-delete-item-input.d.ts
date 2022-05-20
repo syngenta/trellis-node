@@ -1,3 +1,3 @@
-import {DeleteItemInput} from 'aws-sdk/clients/dynamodb';
+import {DocumentClient} from 'aws-sdk/lib/dynamodb/document_client';
 
-export declare type DynamoDBDeleteItemInput = Omit<DeleteItemInput, 'TableName' | 'ReturnValues'>;
+export declare type DynamoDBDeleteItemInput = Omit<DocumentClient.DeleteItemInput, 'TableName' | 'ReturnValues'>;
