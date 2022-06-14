@@ -42,6 +42,10 @@ class DynamodbAdapter {
         }
     }
 
+    async runTransactWriteItems(transactionItems) {
+        return this._dynamodb.transactWrite({TransactItems: transactionItems}).promise();
+    }
+
     async batchOverwrite(params) {
         const items = await this._prepareBatchOverwriteQuery(params);
         const batch = 25;
