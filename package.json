@@ -23,7 +23,7 @@
         "deepmerge": "^4.2.1",
         "js-yaml": "^4.1.0",
         "json-schema-ref-parser": "^9.0.9",
-        "neo4j-driver": "^4.4.5"
+        "neo4j-driver": "^4.4.6"
     },
     "devDependencies": {
         "chai": "^4.2.0",
