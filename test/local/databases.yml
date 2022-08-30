@@ -16,7 +16,7 @@ services:
             - DEFAULT_REGION=us-east-2
             - DATA_DIR=/tmp/localstack/data
     neo4j:
-        image: neo4j:3.5.3-enterprise
+        image: neo4j:4.4.9-enterprise
         hostname: neo4j
         container_name: neo4j
         ports:

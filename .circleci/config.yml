@@ -46,7 +46,7 @@ jobs:
                     AWS_SECRET_ACCESS_KEY: 0
                     AWS_DEFAULT_REGION: us-east-2
             -
-                image: neo4j:3.5.3-enterprise
+                image: neo4j:4.4.9-enterprise
                 environment:
                     - NEO4J_dbms_memory_pagecache_size=1G
                     - NEO4J_dbms.memory.heap.initial_size=1G
