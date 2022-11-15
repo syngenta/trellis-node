@@ -47,10 +47,7 @@ class Neo4JAdapter {
         await this._autoOpen();
         params.query = `CREATE(:${this._node} $placeholder)`;
         const data = await this._schemaMapper.map(params.data);
-        const result = await this._session.writeTransaction(async (txc) => {
-            const records = await txc.run(params.query, {placeholder: data});
-            return records;
-        });
+        const result = await this._session.writeTransaction((txc) => txc.run(params.query, {placeholder: data}));
         this._checkDebug(params, result);
         await this._autoClose();
         await this._publish('create', data);
@@ -76,10 +73,7 @@ class Neo4JAdapter {
 
     async match(params) {
         await this._autoOpen();
-        const result = await this._session.readTransaction(async (txc) => {
-            const records = await txc.run(params.query, params.placeholder);
-            return records;
-        });
+        const result = await this._session.readTransaction((txc) => txc.run(params.query, params.placeholder));
         this._checkDebug(params, result);
         await this._autoClose();
         return result.records ? this._serialize(result.records, params.serialize, params.search) : [];
@@ -100,14 +94,13 @@ class Neo4JAdapter {
         const mergedData = await merger.merge(params, originalData[0]._fields[0].properties);
         const updatedData = await this._schemaMapper.map(mergedData);
         params.updateQuery = `MATCH (n:${this._node}) WHERE n.${this._modelIdentifier} = $id AND n.${this._modelVersionKey} = $version SET n = $placeholder RETURN n`;
-        const result = await this._session.writeTransaction(async (txc) => {
-            const records = await txc.run(params.updateQuery, {
+        const result = await this._session.writeTransaction((txc) =>
+            txc.run(params.updateQuery, {
                 id: updatedData[this._modelIdentifier],
                 version: params.originalVersionKey,
                 placeholder: updatedData
-            });
-            return records;
-        });
+            })
+        );
         if (!result.records.length) {
             throw 'ATOMIC ERROR: No records updated; version has changed';
         }
@@ -137,10 +130,7 @@ class Neo4JAdapter {
         if (!queryString.includes('$')) {
             throw 'SECURITY ERROR: You must use placeholders with symbol $ to avoid injection;';
         }
-        const result = await this._session.readTransaction(async (txc) => {
-            const records = await txc.run(queryString, searchCriteria);
-            return records;
-        });
+        const result = await this._session.readTransaction((txc) => txc.run(queryString, searchCriteria));
         await this._autoClose();
         return result;
     }
@@ -171,10 +161,7 @@ class Neo4JAdapter {
         await this._autoOpen();
         params.deleteQuery = `MATCH (n:${this._node}) WHERE n.${this._modelIdentifier} = $id WITH n LIMIT 1 DETACH DELETE (n)`;
         params.deleteParams = {id: params.deleteIdentifier};
-        const result = await this._session.writeTransaction(async (txc) => {
-            const records = await txc.run(params.deleteQuery, params.deleteParams);
-            return records;
-        });
+        const result = await this._session.writeTransaction((txc) => txc.run(params.deleteQuery, params.deleteParams));
         await this._autoClose();
         return result;
     }
