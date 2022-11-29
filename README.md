@@ -173,7 +173,8 @@ const adapter = await dataAdapter.getAdapter({
     modelSchema: 'v1-grower-model',
     modelSchemaFile: 'application/openapi.yml',
     modelIdentifier: 'grower_id',
-    modelVersionKey: 'modified'
+    modelVersionKey: 'modified',
+    driverConfig: {}
 });
 ```
 
@@ -190,7 +191,8 @@ Option Name       | Required | Type   | Description
 `modelVersionKey` | true     | string | key that can be used as a version key (modified timestamps often suffice)
 `authorIdentifier`| false    | string | unique identifier of the author who made the change (optional)
 `snsTopicArn`     | false    | string | sns topic arn you want to broadcast the changes to
-`snsAttributes`   | false    | string | sns custom attributues to add to the sns message
+`snsAttributes`   | false    | object | sns custom attributues to add to the sns message
+`driverConfig`    | false    | object | configs to pass to native driver; see manual for full list https://neo4j.com/docs/javascript-manual/current/client-applications/#js-driver-configuration
 
 
 ```javascript

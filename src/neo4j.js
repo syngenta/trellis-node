@@ -13,6 +13,7 @@ class Neo4JAdapter {
         this._modelIdentifier = params.modelIdentifier;
         this._snsAttributes = params.snsAttributes;
         this._autoConnect = params.autoConnect !== false ? true : params.autoConnect;
+        this._driverConfig = params.driverConfig;
         this._driver = null;
         this._session = null;
         this._schemaMapper = new SchemaMapper({
@@ -73,6 +74,7 @@ class Neo4JAdapter {
 
     async match(params) {
         await this._autoOpen();
+        this._cleanUpPlaceholders(params);
         const result = await this._session.readTransaction((txc) => txc.run(params.query, params.placeholder));
         this._checkDebug(params, result);
         await this._autoClose();
@@ -148,7 +150,11 @@ class Neo4JAdapter {
     }
 
     async open() {
-        this._driver = neo4j.driver(this._bolt.url, neo4j.auth.basic(this._bolt.user, this._bolt.password));
+        this._driver = neo4j.driver(
+            this._bolt.url,
+            neo4j.auth.basic(this._bolt.user, this._bolt.password),
+            this._driverConfig
+        );
         this._session = this._driver.session();
     }
 
@@ -318,6 +324,18 @@ class Neo4JAdapter {
             console.log('params:', JSON.stringify(params));
             console.log('results:', JSON.stringify(result));
         }
+    }
+
+    _cleanUpPlaceholders(params = {}) {
+        for (const [key, value] of Object.entries(params.placeholder)) {
+            if (this._isNumeric(value)) {
+                params.placeholder[key] = neo4j.int(value);
+            }
+        }
+    }
+
+    _isNumeric(value) {
+        return /^-?\d+$/.test(value);
     }
 
     async _publish(operation, data) {

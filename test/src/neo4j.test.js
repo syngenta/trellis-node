@@ -32,7 +32,7 @@ describe('Test Neo4j Adapter', () => {
             await adapter._session.run(`MATCH (n) DETACH DELETE n`);
             await adapter.close();
         });
-        it('adapter check works', async () => {
+        it('check works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -45,7 +45,7 @@ describe('Test Neo4j Adapter', () => {
             const results = await adapter.check();
             assert.equal(results, true);
         });
-        it('adapter create works', async () => {
+        it('create works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -60,7 +60,7 @@ describe('Test Neo4j Adapter', () => {
             });
             assert.deepEqual(results, baseData);
         });
-        it('adapter create relationship works', async () => {
+        it('create relationship works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -93,7 +93,7 @@ describe('Test Neo4j Adapter', () => {
             const jsonRecords = JSON.parse(JSON.stringify(results.records));
             assert.deepEqual(jsonRecords[0].keys, ['u1', 'u2']);
         });
-        it('adapter read works (with serialize)', async () => {
+        it('read works (with serialize)', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -123,7 +123,7 @@ describe('Test Neo4j Adapter', () => {
                 ]
             });
         });
-        it('adapter read works (without serialize)', async () => {
+        it('read works (without serialize)', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -144,7 +144,71 @@ describe('Test Neo4j Adapter', () => {
             });
             assert.equal(results.length, 1);
         });
-        it('adapter update works', async () => {
+        it('read works converting integers to neo4j ints', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            baseData.test_id = 'abc123-4';
+            await adapter.create({
+                data: baseData
+            });
+            const results = await adapter.read({
+                query: 'MATCH (u:unittest) RETURN (u) SKIP $skip LIMIT $limit',
+                placeholder: {skip: 0, limit: 10},
+                serialize: true
+            });
+            assert.equal(results.unittest.length > 0, true);
+        });
+        it('read works converting strings to neo4j ints', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            baseData.test_id = 'abc123-4';
+            await adapter.create({
+                data: baseData
+            });
+            const results = await adapter.read({
+                query: 'MATCH (u:unittest) RETURN (u) SKIP $skip LIMIT $limit',
+                placeholder: {skip: '0', limit: '10'},
+                serialize: true
+            });
+            assert.equal(results.unittest.length > 0, true);
+        });
+        it('read works with disabling lossless integers', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml',
+                driverConfig: {disableLosslessIntegers: true}
+            });
+            baseData.test_id = 'abc123-4';
+            await adapter.create({
+                data: baseData
+            });
+            const results = await adapter.read({
+                query: 'MATCH (u:unittest) RETURN (u) SKIP $skip LIMIT $limit',
+                placeholder: {skip: 0, limit: 10},
+                serialize: true
+            });
+            assert.equal(results.unittest.length > 0, true);
+        });
+        it('update works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -174,7 +238,7 @@ describe('Test Neo4j Adapter', () => {
                 modified: '2020-10-05'
             });
         });
-        it('adapter delete works', async () => {
+        it('delete works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -204,7 +268,7 @@ describe('Test Neo4j Adapter', () => {
                 ]
             });
         });
-        it('adapter query works', async () => {
+        it('query works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -225,7 +289,7 @@ describe('Test Neo4j Adapter', () => {
             const jsonRecords = JSON.parse(JSON.stringify(results.records));
             assert.equal(jsonRecords.length, 1);
         });
-        it('adapter manual connect works', async () => {
+        it('manual connect works', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -242,7 +306,7 @@ describe('Test Neo4j Adapter', () => {
             await adapter.close();
             assert.equal(adapter._session._open, false);
         });
-        it('adapter manual connect & sequential queries work', async () => {
+        it('manual connect & sequential queries work', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest',
@@ -311,7 +375,7 @@ describe('Test Neo4j Adapter', () => {
             });
             await adapter.close();
         });
-        it('adapter reads relationships', async () => {
+        it('reads relationships', async () => {
             const u2Adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest2',
