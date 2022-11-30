@@ -201,7 +201,7 @@ const results = await adapter.read({
     query: 'MATCH (n) RETURN (n) LIMIT $limit',
     placeholder: {limit: 10},
     serialize: false, // (optional) to get the raw deserialized javascript objects; default: true
-    debug: true // (optional) to log the full query sent to neo4j and raw results from neo4j; default: false
+    debug: true, // (optional) to log the full query sent to neo4j and raw results from neo4j; default: false
     convertNumbers: true // (optional) defaults to true, will convert numeric numbers in placeholder query to neo4j int types
 });
 
