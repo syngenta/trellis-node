@@ -1,18 +1,21 @@
 const {assert} = require('chai');
+const {v4: uuidv4} = require('uuid');
 const dataAdapter = require('../../src');
-
-const baseData = {
-    test_id: 'abc123',
-    string_key: 'def345',
-    number_key: 123,
-    created: '2020-10-05',
-    modified: '2020-10-05'
-};
 
 const boltConfg = {
     url: 'bolt://localhost:7687',
     user: 'neo4j',
     password: 'password'
+};
+
+const createBaseData = () => {
+    return {
+        test_id: uuidv4(),
+        string_key: uuidv4(),
+        number_key: 123,
+        created: '2020-10-05',
+        modified: '2020-10-05'
+    };
 };
 
 describe('Test Neo4j Adapter', () => {
@@ -55,6 +58,7 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
+            const baseData = createBaseData();
             const results = await adapter.create({
                 data: baseData
             });
@@ -70,13 +74,13 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-1';
+            const baseData1 = createBaseData();
             await adapter.create({
-                data: baseData
+                data: baseData1
             });
-            baseData.test_id = 'abc123-2';
+            const baseData2 = createBaseData();
             await adapter.create({
-                data: baseData
+                data: baseData2
             });
             const results = await adapter.createRelationship({
                 query: `MATCH
@@ -88,7 +92,7 @@ describe('Test Neo4j Adapter', () => {
                 CREATE
                     (u1)-[:related]->(u2)
                 RETURN u1,u2`,
-                placeholder: {test_id_1: 'abc123-1', test_id_2: 'abc123-2'}
+                placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
             });
             const jsonRecords = JSON.parse(JSON.stringify(results.records));
             assert.deepEqual(jsonRecords[0].keys, ['u1', 'u2']);
@@ -103,25 +107,15 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-3';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
             const results = await adapter.read({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
-                placeholder: {test_id: 'abc123-3'}
+                placeholder: {test_id: baseData.test_id}
             });
-            assert.deepEqual(results, {
-                unittest: [
-                    {
-                        string_key: 'def345',
-                        modified: '2020-10-05',
-                        number_key: 123,
-                        created: '2020-10-05',
-                        test_id: 'abc123-3'
-                    }
-                ]
-            });
+            assert.deepEqual(results, {unittest: [baseData]});
         });
         it('read works (without serialize)', async () => {
             const adapter = dataAdapter.getAdapter({
@@ -133,13 +127,13 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-4';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
             const results = await adapter.read({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
-                placeholder: {test_id: 'abc123-4'},
+                placeholder: {test_id: baseData.test_id},
                 serialize: false
             });
             assert.equal(results.length, 1);
@@ -154,7 +148,7 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-4';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
@@ -175,7 +169,7 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-4';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
@@ -197,7 +191,7 @@ describe('Test Neo4j Adapter', () => {
                 modelSchemaFile: 'test/openapi.yml',
                 driverConfig: {disableLosslessIntegers: true}
             });
-            baseData.test_id = 'abc123-4';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
@@ -207,6 +201,51 @@ describe('Test Neo4j Adapter', () => {
                 serialize: true
             });
             assert.equal(results.unittest.length > 0, true);
+        });
+        it('read works not converting int to neo4j ints', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            const baseData = createBaseData();
+            baseData.test_id = '0123456';
+            await adapter.create({
+                data: baseData
+            });
+            const results = await adapter.read({
+                query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
+                placeholder: {test_id: baseData.test_id},
+                serialize: true,
+                convertNumbers: false
+            });
+            assert.equal(results.unittest.length > 0, true);
+        });
+        it('read fails for converting int to neo4j ints and cant find it', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            const baseData = createBaseData();
+            baseData.test_id = '0123456';
+            await adapter.create({
+                data: baseData
+            });
+            const results = await adapter.read({
+                query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
+                placeholder: {test_id: baseData.test_id},
+                serialize: true
+            });
+            assert.equal(results.unittest.length > 0, false);
         });
         it('update works', async () => {
             const adapter = dataAdapter.getAdapter({
@@ -218,25 +257,20 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-5';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
             const results = await adapter.update({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
-                placeholder: {test_id: 'abc123-5'},
+                placeholder: {test_id: baseData.test_id},
                 data: {
                     string_key: 'def345-1'
                 },
                 originalVersionKey: '2020-10-05'
             });
-            assert.deepEqual(results, {
-                test_id: 'abc123-5',
-                string_key: 'def345-1',
-                number_key: 123,
-                created: '2020-10-05',
-                modified: '2020-10-05'
-            });
+            baseData.string_key = 'def345-1';
+            assert.deepEqual(results, baseData);
         });
         it('delete works', async () => {
             const adapter = dataAdapter.getAdapter({
@@ -248,25 +282,15 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-6';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
             await adapter.open();
             const results = await adapter.delete({
-                deleteIdentifier: 'abc123-6'
+                deleteIdentifier: baseData.test_id
             });
-            assert.deepEqual(results, {
-                unittest: [
-                    {
-                        string_key: 'def345',
-                        modified: '2020-10-05',
-                        number_key: 123,
-                        created: '2020-10-05',
-                        test_id: 'abc123-6'
-                    }
-                ]
-            });
+            assert.deepEqual(results, {unittest: [baseData]});
         });
         it('query works', async () => {
             const adapter = dataAdapter.getAdapter({
@@ -278,13 +302,13 @@ describe('Test Neo4j Adapter', () => {
                 modelSchema: 'test-neo4j-model',
                 modelSchemaFile: 'test/openapi.yml'
             });
-            baseData.test_id = 'abc123-7';
+            const baseData = createBaseData();
             await adapter.create({
                 data: baseData
             });
             await adapter.open();
             const results = await adapter.query('MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)', {
-                test_id: 'abc123-7'
+                test_id: baseData.test_id
             });
             const jsonRecords = JSON.parse(JSON.stringify(results.records));
             assert.equal(jsonRecords.length, 1);
@@ -318,80 +342,33 @@ describe('Test Neo4j Adapter', () => {
                 modelSchemaFile: 'test/openapi.yml'
             });
             await adapter.open();
-            baseData.test_id = 'abc123-8';
+            const baseData = createBaseData();
             const createResults = await adapter.create({
                 data: baseData
             });
-            assert.deepEqual(createResults, {
-                test_id: 'abc123-8',
-                string_key: 'def345',
-                number_key: 123,
-                created: '2020-10-05',
-                modified: '2020-10-05'
-            });
+            assert.deepEqual(createResults, baseData);
             const readResults = await adapter.read({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
-                placeholder: {test_id: 'abc123-8'}
+                placeholder: {test_id: baseData.test_id}
             });
-            assert.deepEqual(readResults, {
-                unittest: [
-                    {
-                        string_key: 'def345',
-                        modified: '2020-10-05',
-                        number_key: 123,
-                        created: '2020-10-05',
-                        test_id: 'abc123-8'
-                    }
-                ]
-            });
+            assert.deepEqual(readResults, {unittest: [baseData]});
             const updateResults = await adapter.update({
                 query: 'MATCH (u:unittest) WHERE u.test_id = $test_id RETURN (u)',
-                placeholder: {test_id: 'abc123-8'},
+                placeholder: {test_id: baseData.test_id},
                 data: {
                     string_key: 'def345-3'
                 },
                 originalVersionKey: '2020-10-05'
             });
-            assert.deepEqual(updateResults, {
-                test_id: 'abc123-8',
-                string_key: 'def345-3',
-                number_key: 123,
-                created: '2020-10-05',
-                modified: '2020-10-05'
-            });
+            baseData.string_key = 'def345-3';
+            assert.deepEqual(updateResults, baseData);
             const deleteResults = await adapter.delete({
-                deleteIdentifier: 'abc123-8'
+                deleteIdentifier: baseData.test_id
             });
-            assert.deepEqual(deleteResults, {
-                unittest: [
-                    {
-                        string_key: 'def345-3',
-                        modified: '2020-10-05',
-                        number_key: 123,
-                        created: '2020-10-05',
-                        test_id: 'abc123-8'
-                    }
-                ]
-            });
+            assert.deepEqual(deleteResults, {unittest: [baseData]});
             await adapter.close();
         });
         it('reads relationships', async () => {
-            const u2Adapter = dataAdapter.getAdapter({
-                engine: 'neo4j',
-                node: 'unittest2',
-                bolt: boltConfg,
-                modelIdentifier: 'test_id',
-                modelVersionKey: 'modified',
-                autoConnect: false,
-                modelSchema: 'test-neo4j-model',
-                modelSchemaFile: 'test/openapi.yml'
-            });
-            await u2Adapter.open();
-            baseData.test_id = 'abc123-u2';
-            await u2Adapter.create({
-                data: baseData
-            });
-            await u2Adapter.close();
             const u1Adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',
                 node: 'unittest1',
@@ -403,11 +380,27 @@ describe('Test Neo4j Adapter', () => {
                 modelSchemaFile: 'test/openapi.yml'
             });
             await u1Adapter.open();
-            baseData.test_id = 'abc123-u1';
+            const baseData1 = createBaseData();
             await u1Adapter.create({
-                data: baseData
+                data: baseData1
             });
-            await u1Adapter.createRelationship({
+            await u1Adapter.close();
+            const u2Adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest2',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                autoConnect: false,
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            await u2Adapter.open();
+            const baseData2 = createBaseData();
+            await u2Adapter.create({
+                data: baseData2
+            });
+            await u2Adapter.createRelationship({
                 query: `MATCH
                     (u1:unittest1), (u2:unittest2)
                 WHERE
@@ -417,31 +410,31 @@ describe('Test Neo4j Adapter', () => {
                 CREATE
                     (u1)-[r:related]->(u2)
                 RETURN u1,u2,r`,
-                placeholder: {test_id_1: 'abc123-u1', test_id_2: 'abc123-u2'}
+                placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
             });
-            const results = await u1Adapter.read({
+            const results = await u2Adapter.read({
                 query: 'MATCH (u1:unittest1)-[r:related]-(u2:unittest2) WHERE u1.test_id = $test_id RETURN u1,u2,r',
-                placeholder: {test_id: 'abc123-u1'}
+                placeholder: {test_id: baseData1.test_id}
             });
             assert.deepEqual(results, {
                 unittest1: [
                     {
-                        string_key: 'def345',
+                        string_key: baseData1.string_key,
                         modified: '2020-10-05',
                         number_key: 123,
                         created: '2020-10-05',
-                        test_id: 'abc123-u1',
+                        test_id: baseData1.test_id,
                         related: {
-                            string_key: 'def345',
+                            string_key: baseData2.string_key,
                             modified: '2020-10-05',
                             number_key: 123,
                             created: '2020-10-05',
-                            test_id: 'abc123-u2'
+                            test_id: baseData2.test_id
                         }
                     }
                 ]
             });
-            await u1Adapter.close();
+            await u2Adapter.close();
         });
         after(async () => {
             console.log('\n\n==== FINISHING NEO4J UNIT TESTS ====\n\n');

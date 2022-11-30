@@ -327,9 +327,11 @@ class Neo4JAdapter {
     }
 
     _cleanUpPlaceholders(params = {}) {
-        for (const [key, value] of Object.entries(params.placeholder)) {
-            if (this._isNumeric(value)) {
-                params.placeholder[key] = neo4j.int(value);
+        if (params.convertNumbers !== false) {
+            for (const [key, value] of Object.entries(params.placeholder)) {
+                if (this._isNumeric(value)) {
+                    params.placeholder[key] = neo4j.int(value);
+                }
             }
         }
     }
