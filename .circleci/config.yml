@@ -54,7 +54,7 @@ jobs:
                     - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
                     - NEO4J_AUTH=neo4j/password
             -
-                image: localstack/localstack-full:latest
+                image: localstack/localstack:latest
                 environment:
                     - SERVICES=sns,s3
                     - DEBUG=1

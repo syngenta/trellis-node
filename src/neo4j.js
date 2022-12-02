@@ -67,6 +67,17 @@ class Neo4JAdapter {
         return result;
     }
 
+    async deleteRelationship(params) {
+        if (!params.query.toUpperCase().includes('DETACH') && !params.query.toUpperCase().includes('DELETE')) {
+            throw 'INTEGRITY ERROR: Please only use this function to delete relationships;';
+        }
+        const result = await this._session.run(params.query, params.placeholder);
+        this._checkDebug(params, result);
+        this._autoClose();
+        await this._publish('delete', result);
+        return result;
+    }
+
     async read(params) {
         const results = await this.match(params);
         return results;

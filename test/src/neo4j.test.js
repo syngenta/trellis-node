@@ -97,6 +97,96 @@ describe('Test Neo4j Adapter', () => {
             const jsonRecords = JSON.parse(JSON.stringify(results.records));
             assert.deepEqual(jsonRecords[0].keys, ['u1', 'u2']);
         });
+        it('delete relationship works', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                autoConnect: false,
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            await adapter.open();
+            const baseData1 = createBaseData();
+            await adapter.create({
+                data: baseData1
+            });
+            const baseData2 = createBaseData();
+            await adapter.create({
+                data: baseData2
+            });
+            await adapter.createRelationship({
+                query: `MATCH
+                    (u1:unittest), (u2:unittest)
+                WHERE
+                    u1.test_id = $test_id_1
+                AND
+                    u2.test_id = $test_id_2
+                CREATE
+                    (u1)-[:related]->(u2)
+                RETURN u1,u2`,
+                placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
+            });
+            await adapter.read({
+                query: `MATCH
+                    (u1:unittest)-[r:related]-(u2:unittest)
+                WHERE
+                    u1.test_id=$test_id_1
+                AND
+                    u2.test_id=$test_id_2
+                RETURN u1,r,u2`,
+                placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
+            });
+            await adapter.deleteRelationship({
+                query: `MATCH
+                    (u1:unittest)-[r:related]-(u2:unittest)
+                WHERE
+                    u1.test_id=$test_id_1
+                AND
+                    u2.test_id=$test_id_2
+                DETACH DELETE r`,
+                placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
+            });
+            const results = await adapter.read({
+                query: `MATCH
+                    (u1:unittest)-[r:related]-(u2:unittest)
+                WHERE
+                    u1.test_id=$test_id_1
+                AND
+                    u2.test_id=$test_id_2
+                RETURN u1,r,u2`,
+                placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
+            });
+            await adapter.close();
+            assert.equal(results.unittest.length === 0, true);
+        });
+        it('delete relationship stops non-delete relationship query', async () => {
+            const adapter = dataAdapter.getAdapter({
+                engine: 'neo4j',
+                node: 'unittest',
+                bolt: boltConfg,
+                modelIdentifier: 'test_id',
+                modelVersionKey: 'modified',
+                modelSchema: 'test-neo4j-model',
+                modelSchemaFile: 'test/openapi.yml'
+            });
+            try {
+                await adapter.deleteRelationship({
+                    query: `MATCH
+                        (u1:unittest)-[r:related]-(u2:unittest)
+                    WHERE
+                        u1.test_id=$test_id_1
+                    AND
+                        u2.test_id=$test_id_2`,
+                    placeholder: {test_id_1: baseData1.test_id, test_id_2: baseData2.test_id}
+                });
+                assert.equal(false, true);
+            } catch (error) {
+                assert.equal(true, true);
+            }
+        });
         it('read works (with serialize)', async () => {
             const adapter = dataAdapter.getAdapter({
                 engine: 'neo4j',

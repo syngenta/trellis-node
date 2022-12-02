@@ -2,14 +2,14 @@ version: '3'
 
 services:
     localstack:
-        image: localstack/localstack-full:latest
+        image: localstack/localstack:latest
         hostname: localstack
         container_name: localstack
         ports:
             - '4563-4599:4563-4599'
             - 8080:8080
         volumes:
-            - ./.localstack/data:/tmp/localstack
+            - ./.localstack/data:/var/lib/localstack
         environment:
             - SERVICES=sns,s3
             - DEBUG=1
