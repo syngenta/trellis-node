@@ -56,10 +56,10 @@ class Neo4JAdapter {
     }
 
     async createRelationship(params) {
-        await this._autoOpen();
         if (!params.query.includes('-') && !params.query.includes('[')) {
             throw 'INTEGRITY ERROR: Please only use this function to create relationships;';
         }
+        await this._autoOpen();
         const result = await this._session.run(params.query, params.placeholder);
         this._checkDebug(params, result);
         await this._autoClose();
@@ -71,9 +71,10 @@ class Neo4JAdapter {
         if (!params.query.toUpperCase().includes('DETACH') && !params.query.toUpperCase().includes('DELETE')) {
             throw 'INTEGRITY ERROR: Please only use this function to delete relationships;';
         }
+        await this._autoOpen();
         const result = await this._session.run(params.query, params.placeholder);
         this._checkDebug(params, result);
-        this._autoClose();
+        await this._autoClose();
         await this._publish('delete', result);
         return result;
     }
@@ -115,6 +116,7 @@ class Neo4JAdapter {
             })
         );
         if (!result.records.length) {
+            await this._autoClose();
             throw 'ATOMIC ERROR: No records updated; version has changed';
         }
         this._checkDebug(params, result);
@@ -139,10 +141,10 @@ class Neo4JAdapter {
     }
 
     async query(queryString, searchCriteria) {
-        await this._autoOpen();
         if (!queryString.includes('$')) {
             throw 'SECURITY ERROR: You must use placeholders with symbol $ to avoid injection;';
         }
+        await this._autoOpen();
         const result = await this._session.readTransaction((txc) => txc.run(queryString, searchCriteria));
         await this._autoClose();
         return result;
