@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "aws-sdk": "^2.1265.0",
-        "deepmerge": "^4.2.1",
+        "deepmerge": "^4.3.1",
         "js-yaml": "^4.1.0",
         "json-schema-ref-parser": "^9.0.9",
         "neo4j-driver": "^5.3.0"
